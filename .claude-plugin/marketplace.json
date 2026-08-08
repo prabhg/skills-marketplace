@@ -1,0 +1,20 @@
+{
+  "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
+  "name": "prabhg-plugins",
+  "description": "Prabhh's curated Claude Code plugins and skills, installable on any machine.",
+  "owner": {
+    "name": "Prabhh Ghumn"
+  },
+  "plugins": [
+    {
+      "name": "fokus",
+      "description": "Action-first output shaping: next action first, numbered steps, no tangents, visible progress.",
+      "source": {
+        "source": "github",
+        "repo": "prabhg/fokus-skill",
+        "ref": "main"
+      },
+      "category": "productivity"
+    }
+  ]
+}
