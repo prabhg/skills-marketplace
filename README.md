@@ -39,6 +39,7 @@ Sync `~/.claude/settings.json` in dotfiles and the marketplace installs itself o
 | Plugin | Source | What it does |
 | --- | --- | --- |
 | `fokus` | [prabhg/fokus-skill](https://github.com/prabhg/fokus-skill) | Action-first output shaping: next action first, numbered steps, no tangents, visible progress. |
+| `tidy-workspace` | vendored (`plugins/tidy-workspace`) | End-of-session cleanup pass: stale worktrees, merged branches, disk, temp handoff docs, agent memory. Invoke with `/tidy-workspace:end-of-session-cleanup`. |
 
 ## Adding a plugin
 

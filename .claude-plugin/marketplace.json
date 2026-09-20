@@ -15,6 +15,12 @@
         "ref": "main"
       },
       "category": "productivity"
+    },
+    {
+      "name": "tidy-workspace",
+      "description": "End-of-session workspace cleanup: stale worktrees, merged branches, disk caches, temp handoff docs, and agent memory — discover, print targets, confirm, act one at a time, verify.",
+      "source": "./plugins/tidy-workspace",
+      "category": "productivity"
     }
   ]
 }

@@ -1,0 +1,8 @@
+{
+  "name": "tidy-workspace",
+  "version": "0.1.0",
+  "description": "End-of-session workspace cleanup: stale worktrees, merged branches, disk caches, temp handoff docs, and agent memory — discover, print targets, confirm, act one at a time, verify.",
+  "author": {
+    "name": "Prabhh Ghumn"
+  }
+}
