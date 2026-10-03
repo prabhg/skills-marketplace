@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{PRODUCT}} Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/"><link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg: #f3f4f6;
+    --panel: #ffffff;
+    --panel-2: #eceef2;
+    --ink: #14161a;
+    --muted: #4a5161;
+    --text-2: #2c323d;
+    --line: #d4d8df;
+    --line-strong: #aeb5c1;
+    --accent: #c42f28;
+    --accent-soft: #fbe8e6;
+    --teal: #0c7a69;
+    --teal-soft: #e0f2ee;
+    --amber: #945700;
+    --amber-soft: #fbefd9;
+    --violet: #5646c0;
+    --violet-soft: #ebe9fb;
+    --paper: #ffffff;
+    --paper-ink: #14161a;
+    --band-a: #f7f8fa;
+    --band-b: #eff1f4;
+    --radius: 10px;
+    color-scheme: light;
+  }
+
+  html { background: var(--bg); color-scheme: light; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.86em; }
+  a { color: inherit; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; }
+
+  /* ---------- header ---------- */
+  .hero { padding-block: 40px 20px; }
+  .kicker {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 12px;
+  }
+  .kicker svg { color: var(--accent); flex: none; }
+  h1 { font-size: clamp(28px, 4.2vw, 44px); line-height: 1.1; margin: 0 0 14px; text-wrap: balance; letter-spacing: -0.01em; }
+  .lede { max-width: 70ch; color: var(--muted); font-size: 16px; margin: 0 0 22px; }
+  .lede strong { color: var(--ink); font-weight: 600; }
+  .stats { display: flex; flex-wrap: wrap; gap: 8px 22px; list-style: none; padding: 14px 0 0; margin: 0; border-top: 1px solid var(--line); }
+  .stats li { display: flex; align-items: baseline; gap: 6px; color: var(--muted); font-size: 13px; }
+  .stats b { color: var(--ink); font-size: 18px; font-variant-numeric: tabular-nums; font-weight: 700; }
+
+  /* ---------- nav ---------- */
+  .toc {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .toc-inner { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-block: 8px; }
+  .toc-inner::-webkit-scrollbar { display: none; }
+  .toc a {
+    flex: none; text-decoration: none; font-size: 13px; font-weight: 500; color: var(--muted);
+    padding: 6px 10px; border-radius: 999px;
+  }
+  .toc a:hover, .toc a:focus-visible { color: var(--ink); background: var(--panel-2); outline: none; }
+  .toc a .n { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--accent); margin-right: 4px; }
+
+  /* ---------- sections ---------- */
+  section { padding-block: 44px 8px; scroll-margin-top: 56px; }
+  .sec-head { display: grid; gap: 6px; margin-bottom: 20px; }
+  .sec-num { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--accent); letter-spacing: 0.06em; }
+  h2 { font-size: clamp(22px, 2.8vw, 30px); line-height: 1.2; margin: 0; text-wrap: balance; }
+  .sec-lede { color: var(--muted); max-width: 72ch; margin: 0; }
+  h3 { font-size: 18px; margin: 0 0 6px; line-height: 1.3; text-wrap: balance; }
+  h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 8px; font-weight: 600; }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* ---------- system map ---------- */
+  .map-frame { padding: 8px; }
+  .map { display: block; width: 100%; min-width: 1120px; height: auto; color: var(--ink); font-family: "IBM Plex Sans", system-ui, sans-serif; }
+  .map .band-a { fill: var(--band-a); }
+  .map .band-b { fill: var(--band-b); }
+  .map .band-label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; fill: var(--muted); }
+  .map .box rect { fill: #ffffff; stroke: #9aa3b0; stroke-width: 1.2; }
+  .map .box.people rect { fill: #fdeceb; stroke: var(--accent); }
+  .map .box.async rect { fill: #e3f4f0; stroke: var(--teal); }
+  .map .box.ai rect { fill: #eeecfc; stroke: var(--violet); }
+  .map .box.planned rect { fill: #fafbfc; stroke: #9aa3b0; stroke-dasharray: 6 4; }
+  .map .box.planned .t, .map .box.planned .d { fill: var(--muted); }
+  .map .t { font-size: 16px; font-weight: 600; fill: var(--ink); }
+  .map .d { font-size: 13.5px; fill: var(--text-2); }
+  .map .h { font-size: 13px; fill: var(--ink); font-family: "IBM Plex Mono", monospace; }
+  .map .edge { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+  .map .edge.async { stroke: var(--teal); stroke-dasharray: 7 4; }
+  .map .edge.rail { stroke: #8d96a3; stroke-width: 1.6; stroke-dasharray: 2 5; }
+  .map .edge.public { stroke: var(--accent); }
+  .map .elabel { font-size: 13px; fill: var(--ink); font-weight: 500; }
+  .map .elabel.async { fill: var(--teal); font-weight: 600; }
+  .map .elabel.muted { fill: var(--muted); }
+  .map .step circle { fill: var(--accent); }
+  .map .step text { fill: #fff; font-size: 13px; font-weight: 700; }
+  .map .mk-ink path { fill: var(--ink); }
+  .map .mk-teal path { fill: var(--teal); }
+  .map .mk-muted path { fill: #8d96a3; }
+  .map .mk-accent path { fill: var(--accent); }
+  .map-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 4px 2px; font-size: 13px; color: var(--muted); }
+  .map-legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .sw { width: 26px; height: 0; border-top: 2px solid var(--ink); display: inline-block; }
+  .sw.async { border-top: 2px dashed var(--teal); }
+  .sw.rail { border-top: 2px dotted var(--line-strong); }
+  .sw.public { border-top: 2px solid var(--accent); }
+  .dot { width: 16px; height: 16px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; display: inline-grid; place-items: center; }
+  figure { margin: 0; }
+  figcaption { color: var(--muted); font-size: 14px; margin-top: 10px; max-width: 80ch; }
+  .path-line { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin-top: 12px; font-size: 14px; }
+  .path-line .arrow { color: var(--muted); }
+
+  /* ---------- flows ---------- */
+  .flow-index { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin-bottom: 26px; }
+  .flow-index a {
+    display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start;
+    text-decoration: none; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel);
+  }
+  .flow-index a:hover { border-color: var(--accent); }
+  .flow-index .fn { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--accent); padding-top: 2px; }
+  .flow-index .ft { font-weight: 600; font-size: 14px; line-height: 1.35; }
+  .flow-index .fs { display: block; font-weight: 400; color: var(--text-2); font-size: 13px; }
+  .flow { padding: 18px; margin-bottom: 18px; scroll-margin-top: 60px; }
+  .flow-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 14px; margin-bottom: 4px; }
+  .flow-head .fnum { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--accent); }
+  .flow p { margin: 0 0 12px; color: var(--text-2); max-width: 80ch; }
+  .seq {
+    background: var(--paper); color: var(--paper-ink);
+    border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto;
+  }
+  .seq svg { display: block; width: 100%; min-width: 1000px; height: auto; margin: 0 auto; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .chip { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); white-space: nowrap; }
+  .chip.svc { background: var(--teal-soft); border-color: transparent; }
+  .chip.ext { background: var(--violet-soft); border-color: transparent; }
+  .chip.warn { background: var(--amber-soft); border-color: transparent; color: var(--ink); }
+
+  /* ---------- services ---------- */
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+  .card { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .card .top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .card .name { font-family: "IBM Plex Mono", monospace; font-weight: 500; font-size: 14px; }
+  .card .role { color: var(--text-2); font-size: 14px; margin: 0; }
+  .kv { display: grid; grid-template-columns: 84px 1fr; gap: 5px 10px; font-size: 13.5px; margin: 0; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; color: var(--text-2); }
+  .tag {
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 4px; white-space: nowrap;
+  }
+  .tag.live { background: var(--teal-soft); color: var(--teal); }
+  .tag.partial { background: var(--amber-soft); color: var(--amber); }
+  .tag.planned { background: var(--panel-2); color: var(--muted); }
+  .tag.lib { background: var(--violet-soft); color: var(--violet); }
+  .support { margin-top: 18px; }
+  .support .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+
+  /* ---------- tables ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 600; background: var(--panel-2); position: sticky; top: 0; }
+  tbody tr.group td { background: var(--panel-2); font-weight: 600; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+  td code { white-space: nowrap; }
+  .num { font-variant-numeric: tabular-nums; }
+  .tbl { min-width: 760px; }
+
+  /* ---------- features ---------- */
+  .filter { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .filter button {
+    font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  }
+  .filter button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .feat-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+  .feat-group { padding: 14px 16px; }
+  .feat-group ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .feat-group li { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: start; font-size: 14px; }
+  .feat-group li small { display: block; color: var(--text-2); font-size: 13px; }
+
+  /* ---------- plans ---------- */
+  .life-fig { padding: 14px; margin-top: 16px; }
+  .life-svg { display: block; width: 100%; min-width: 760px; max-width: 980px; height: auto; color: var(--ink); }
+  .life-svg rect.b { fill: #ffffff; stroke: #9aa3b0; stroke-width: 1.2; }
+  .life-svg rect.b.hot { fill: #fdeceb; stroke: var(--accent); }
+  .life-svg rect.b.ok { fill: #e3f4f0; stroke: var(--teal); }
+  .life-svg .t { font-size: 16px; font-weight: 600; fill: var(--ink); }
+  .life-svg .d { font-size: 14px; fill: var(--text-2); }
+  .life-svg .e { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+  .life-svg .e.alt { stroke: var(--amber); stroke-dasharray: 6 4; }
+  .life-svg .l { font-size: 13px; fill: var(--ink); font-weight: 500; }
+  .life-svg .l.alt { fill: var(--amber); font-weight: 600; }
+  .life-svg .mk path { fill: var(--ink); }
+  .life-svg .mk-alt path { fill: var(--amber); }
+  .two { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .note { font-size: 13.5px; color: var(--muted); }
+  ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; }
+
+  /* ---------- stack ---------- */
+  .stack-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .stack-grid .panel { padding: 14px 16px; }
+  .stack-grid ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13.5px; }
+  .stack-grid li { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line); padding-bottom: 5px; }
+  .stack-grid li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .stack-grid li span:last-child { color: var(--text-2); font-family: "IBM Plex Mono", monospace; font-size: 12.5px; text-align: right; }
+
+  /* ---------- pipeline ---------- */
+  .pipeline { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; counter-reset: step; }
+  .pipeline li {
+    counter-increment: step; flex: 1 1 150px; position: relative;
+    padding: 12px 12px 12px 12px; font-size: 13px; border-radius: 8px;
+    background: var(--panel); border: 1px solid var(--line);
+  }
+  .pipeline li::before { content: counter(step, decimal-leading-zero); display: block; font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--accent); margin-bottom: 4px; }
+  .pipeline li b { display: block; font-size: 13.5px; margin-bottom: 2px; }
+  .pipeline li span { color: var(--text-2); }
+
+  /* ---------- open items ---------- */
+  .open { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .open .panel { padding: 14px 16px; font-size: 14px; }
+  .open .panel b { display: block; margin-bottom: 4px; }
+  .open .panel span { color: var(--text-2); font-size: 13.5px; }
+
+  footer { padding-block: 40px 56px; color: var(--muted); font-size: 13px; }
+
+  @media (max-width: 560px) {
+    body { font-size: 14.5px; }
+    .hero { padding-block: 26px 14px; }
+    .flow { padding: 14px; }
+    .kv { grid-template-columns: 70px 1fr; }
+  }
+
+  /* ---------- additions for this page ---------- */
+  .map .box.vendor rect { fill: var(--violet-soft); stroke: var(--violet); }
+  .map .elabel.public-l { fill: var(--accent); font-weight: 600; }
+  #flows.wrap { max-width: 1400px; }
+  .seq svg { min-width: 0; }
+  #flows .seq svg text.messageText, #flows .seq svg text.loopText, #flows .seq svg text.labelText { paint-order: stroke; stroke: #ffffff; stroke-width: 5px; stroke-linejoin: round; }
+  .sw.event { border-top: 2px dashed var(--teal); }
+  .sw.frame { border-top: 2px dotted var(--accent); }
+  .sw.reply { border-top: 2px dashed var(--muted); }
+  .key { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 18px; }
+  .key span { font-size: 12.5px; padding: 3px 9px; border-radius: 6px; border: 1.3px solid; color: var(--ink); white-space: nowrap; font-family: "IBM Plex Mono", monospace; }
+  .legend-block { margin-bottom: 18px; }
+  .legend-block h4 { margin-top: 6px; }
+  .card .name .dot-svc { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; vertical-align: 0; border: 1.3px solid; }
+  td.ops code { white-space: normal; }
+  .kv dd, .card .role { min-width: 0; overflow-wrap: anywhere; }
+  .card { min-width: 0; }
+  td.ops { min-width: 330px; }
+  .tag.api { background: var(--violet-soft); color: var(--violet); }
+  .tag.dev { background: var(--amber-soft); color: var(--amber); }
+  .tag.adm { background: var(--accent-soft); color: var(--accent); }
+  .tier-tbl td:first-child { font-weight: 600; }
+  .tier-tbl td.no { color: var(--muted); }
+  .posture { padding: 14px 16px; margin-bottom: 14px; font-size: 14px; }
+  .pipeline.ms li { flex: 1 1 200px; }
+</style></head><body>
+<!--
+  ARCHITECTURE SHARE PAGE TEMPLATE
+  - Replace every double-brace placeholder (scripts/check.py fails while any remain).
+  - Keep section order and the sec-head pattern; delete optional sections (marked OPTIONAL) you do not need,
+    and remove their TOC link. Renumber .sec-num and the TOC numbers to stay sequential.
+  - Each flow article holds a SEQ marker comment (SEQ, colon, flow id); scripts/assemble.py swaps in the pre-rendered SVG.
+  - Colours: service colour = the participant group colour in flows.json. Use the same fill/stroke in map
+    boxes (inline style on the rect), in .dot-svc squares on cards and in .key chips.
+  - Delete these HTML comments before publishing if you like; they are harmless.
+-->
+<header class="hero wrap">
+  <p class="kicker">
+    <svg width="40" height="16" viewBox="0 0 40 16" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="6"></circle><circle cx="22" cy="8" r="6"></circle></g></svg>
+    {{PRODUCT}} · {{DOC KIND, e.g. backend architecture}} {{SOURCE REVISION}} · {{design as of / as deployed}} {{DATE}}
+  </p>
+  <h1>How {{PRODUCT}} works, from {{START OF THE JOURNEY}} to {{END OF THE JOURNEY}}</h1>
+  <p class="lede">{{ONE PARAGRAPH: what the product is for its users, then the platform in bold phrases: cloud and runtime, <strong>N services</strong> behind <strong>which API</strong>, the client, the realtime path, the <strong>event bus</strong>, identity. Which branch/env is prod. State plainly if it is a design and nothing is built.}}</p>
+  <ul class="stats" aria-label="Platform size">
+    <li><b>{{N}}</b> repositories</li>
+    <li><b>{{N}}</b> services</li>
+    <li><b>{{N}}</b> API operations</li>
+    <li><b>{{N}}</b> event types on the bus</li>
+    <li><b>{{N}}</b> data models</li>
+    <li><b>{{N}}</b> environments</li>
+  </ul>
+</header>
+
+<nav class="toc" aria-label="Sections"><div class="toc-inner wrap">
+  <a href="#map"><span class="n">01</span>System map</a>
+  <a href="#flows"><span class="n">02</span>User flows</a>
+  <a href="#services"><span class="n">03</span>Services</a>
+  <a href="#events"><span class="n">04</span>Event bus</a>
+  <a href="#apis"><span class="n">05</span>APIs</a>
+  <a href="#features"><span class="n">06</span>Features</a>
+  <a href="#plans"><span class="n">07</span>Plans</a>
+  <a href="#access"><span class="n">08</span>Access</a>
+  <a href="#stack"><span class="n">09</span>Technology</a>
+  <a href="#envs"><span class="n">10</span>Environments</a>
+  <a href="#security"><span class="n">11</span>Security</a>
+  <a href="#rollout"><span class="n">12</span>Rollout</a>
+  <a href="#open"><span class="n">13</span>Decisions</a>
+</div></nav>
+<main>
+
+<!-- ======================================================= 01 MAP -->
+<section id="map" class="wrap">
+  <div class="sec-head"><span class="sec-num">01</span><h2>System map</h2>
+    <p class="sec-lede">{{N}} layers, top to bottom: {{LIST THE BANDS}}. Numbered dots follow {{ONE OBJECT, e.g. one message}} from {{START}} to {{END}}.</p></div>
+  <figure class="panel map-frame"><div class="scroll-x">
+    <!-- Hand-laid SVG. Grid: 4 columns x 265px at x = 40, 325, 610, 895 (or 3 x 360 at 40, 420, 800).
+         Bands: rect x=30 w=1140 rx=12, alternate band-a/band-b, uppercase band-label at (46, y+22).
+         Keep band labels short so vertical edges do not cross them. Rails run outside x=30..1170;
+         rotated rail labels need the viewBox padded (here -14 .. 1216). -->
+    <svg class="map" viewBox="-14 0 1230 560" role="img" aria-label="{{ONE SENTENCE DESCRIBING THE WHOLE ARCHITECTURE FOR SCREEN READERS}}">
+      <defs>
+        <marker id="m-ink" class="mk-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"></path></marker>
+        <marker id="m-teal" class="mk-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"></path></marker>
+        <marker id="m-muted" class="mk-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"></path></marker>
+        <marker id="m-accent" class="mk-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"></path></marker>
+      </defs>
+      <rect class="band-a" x="30" y="0" width="1140" height="110" rx="12"></rect><text class="band-label" x="46" y="22">PEOPLE</text>
+      <rect class="band-b" x="30" y="118" width="1140" height="144" rx="12"></rect><text class="band-label" x="46" y="140">API EDGE</text>
+      <rect class="band-a" x="30" y="270" width="1140" height="160" rx="12"></rect><text class="band-label" x="46" y="292">SERVICES</text>
+      <rect class="band-b" x="30" y="438" width="1140" height="110" rx="12"></rect><text class="band-label" x="46" y="460">ASYNC · OUTSIDE</text>
+      <!-- people -->
+      <g class="box people"><rect x="40" y="34" width="360" height="64" rx="9"></rect><text class="t" x="54" y="59">{{PERSON OR CLIENT}}</text><text class="d" x="54" y="81">{{one line}}</text></g>
+      <!-- edge -->
+      <g class="box"><rect x="40" y="152" width="265" height="100" rx="9"></rect><text class="t" x="54" y="177">{{API}}</text><text class="d" x="54" y="199">{{what it is}}</text><text class="h" x="54" y="218">{{host.example}}</text></g>
+      <g class="box"><rect x="325" y="152" width="265" height="100" rx="9"></rect><text class="t" x="339" y="177">{{REALTIME API}}</text><text class="d" x="339" y="199">{{what it is}}</text></g>
+      <path class="edge" d="M172 98 V150" marker-end="url(#m-ink)"></path><text class="elabel" x="182" y="128">{{call label}}</text>
+      <path class="edge public" d="M380 150 V100" marker-end="url(#m-accent)"></path><text class="elabel public-l" x="390" y="128">{{frames to the device}}</text>
+      <!-- bus line from the edge into the services band -->
+      <path class="edge" d="M172 252 V312"></path><path class="edge" d="M40 312 H1160"></path>
+      <path class="edge" d="M172 312 V324" marker-end="url(#m-ink)"></path>
+      <!-- services: one box per service, coloured with that service's group colours (inline style) -->
+      <g class="box svc"><rect x="40" y="326" width="265" height="100" rx="9" style="fill:#dde9fb;stroke:#2f63c2;stroke-width:1.3"></rect><text class="t" x="54" y="351">{{service-a}}</text><text class="d" x="54" y="373">{{owns 1}}</text><text class="d" x="54" y="392">{{owns 2}}</text><text class="d" x="54" y="411">{{owns 3}}</text></g>
+      <g class="box svc"><rect x="325" y="326" width="265" height="100" rx="9" style="fill:#d9f1f7;stroke:#1a7f99;stroke-width:1.3"></rect><text class="t" x="339" y="351">{{service-b}}</text><text class="d" x="339" y="373">{{owns 1}}</text></g>
+      <!-- async + outside -->
+      <path class="edge async" d="M260 426 V470" marker-start="url(#m-teal)" marker-end="url(#m-teal)"></path><text class="elabel async" x="270" y="452">{{events}}</text>
+      <g class="box async"><rect x="40" y="472" width="360" height="66" rx="9"></rect><text class="t" x="54" y="497">{{EVENT BUS}}</text><text class="d" x="54" y="519">{{N event types, one queue per consumer}}</text></g>
+      <g class="box vendor"><rect x="800" y="472" width="360" height="66" rx="9"></rect><text class="t" x="814" y="497">{{OUTSIDE PROVIDER}}</text><text class="d" x="814" y="519">{{what it does}}</text></g>
+      <g class="box planned"><rect x="420" y="472" width="360" height="66" rx="9"></rect><text class="t" x="434" y="497">{{PLANNED THING}}</text><text class="d" x="434" y="519">{{planned, dashed}}</text></g>
+      <!-- rail: a direct path around the layers -->
+      <path class="edge rail" d="M1160 66 H1178 V505 H1162" marker-end="url(#m-muted)"></path>
+      <text class="elabel muted" transform="translate(1186 120) rotate(90)">{{direct path label}}</text>
+      <!-- numbered journey dots at box top-right corners -->
+      <g class="step"><circle cx="287" cy="170" r="12"></circle><text x="287" y="174.5" text-anchor="middle">1</text></g>
+      <g class="step"><circle cx="287" cy="344" r="12"></circle><text x="287" y="348.5" text-anchor="middle">2</text></g>
+    </svg>
+  </div>
+  <div class="map-legend" aria-hidden="true">
+    <span><i class="sw"></i>request / response</span>
+    <span><i class="sw async"></i>event, queue or workflow</span>
+    <span><i class="sw public"></i>to the device: frame or push</span>
+    <span><i class="sw rail"></i>direct path around the layers</span>
+    <span><i class="dot">1</i>{{journey name}}</span>
+  </div>
+  <figcaption>{{Narrate the dots: <b>1</b> ... → <b>2</b> ... Say that service colours match the flow diagrams.}}</figcaption>
+  </figure>
+</section>
+
+<!-- ======================================================= 02 FLOWS -->
+<section id="flows" class="wrap">
+  <div class="sec-head"><span class="sec-num">02</span><h2>User flows, step by step</h2>
+    <p class="sec-lede">Each diagram is one thing a person does, with the services, events and outside providers it touches. Arrow labels are the real operation, invoke and event names from {{SOURCE}}; capitalised names are events on the bus; dotted red arrows reach a device.</p></div>
+  <nav class="flow-index" aria-label="Flows">
+    <a href="#f-example"><span class="fn">A</span><span class="ft">{{Flow title}}<span class="fs">{{services or one-line gist}}</span></span></a>
+    <!-- one link per flow, letters A, B, C... (phases A1, A2) -->
+  </nav>
+  <div class="legend-block"><h4>How to read the diagrams</h4>
+    <div class="map-legend" style="margin:0 0 10px">
+      <span><i class="sw"></i>call: API operation, invoke, webhook</span><span><i class="sw reply"></i>response</span>
+      <span><i class="sw event"></i>event on the bus</span><span><i class="sw frame"></i>realtime frame or push to a device</span>
+      <span><i class="dot">1</i>step number</span></div>
+    <div class="key">
+      <!-- one chip per participant group, same colours as flows.json groups -->
+      <span style="background:#fdeceb;border-color:#c42f28">people</span>
+      <span style="background:#dde9fb;border-color:#2f63c2">{{service-a}}</span>
+      <span style="background:#ebe9fb;border-color:#5646c0">outside providers</span>
+    </div>
+  </div>
+
+  <article class="panel flow" id="f-example">
+    <div class="flow-head"><h3>A · {{Verb phrase for the user action}}</h3><span class="fnum">{{service · service · provider}}</span></div>
+    <p>{{2 to 3 sentences on the design point: what makes this flow safe, idempotent or private. Not a restatement of the arrows. Mark anything unverified as <b>unverified</b>.}}</p>
+    <div class="seq"><!--SEQ:f-example--></div>
+    <div class="chips">
+      <span class="chip svc" style="background:#dde9fb;border-color:#2f63c255">{{service-a}}</span>
+      <span class="chip ext">{{outside provider}}</span>
+      <span class="chip warn">{{pending item}}</span>
+      <span class="chip">{{EVENT_NAME}}</span>
+    </div>
+  </article>
+  <!-- repeat one article per flow -->
+</section>
+
+<!-- ======================================================= 03 SERVICES -->
+<section id="services" class="wrap">
+  <div class="sec-head"><span class="sec-num">03</span><h2>Services and what each one owns</h2>
+    <p class="sec-lede">{{How services are split (repo, deploy unit, data ownership) and how they reach each other. What the badge means.}}</p></div>
+  <div class="grid">
+    <article class="panel card">
+      <div class="top"><span class="name"><i class="dot-svc" style="background:#dde9fb;border-color:#2f63c2"></i>{{service-a}}</span><span class="tag live">{{badge: layer, milestone, op counts or status}}</span></div>
+      <p class="role">{{One sentence: what it owns end to end.}}</p>
+      <dl class="kv"><dt>Tables</dt><dd>{{Model, Model}}</dd><dt>Emits</dt><dd>{{EVENT_A, EVENT_B}}</dd><dt>Consumes</dt><dd>{{EVENT_C}}</dd><dt>Outside</dt><dd>{{provider}}</dd><dt>Never</dt><dd>{{must-not-own}}</dd></dl>
+    </article>
+  </div>
+  <div class="support"><h4>Supporting repositories</h4><div class="grid">
+    <article class="panel card"><div class="top"><span class="name">{{shared-lib}}</span><span class="tag lib">{{lib}}</span></div><p class="role">{{what it holds}}</p></article>
+    <article class="panel card"><div class="top"><span class="name">{{post-launch-repo}}</span><span class="tag planned">{{planned}}</span></div><p class="role">{{what and when}}</p></article>
+  </div></div>
+  <p class="note" style="margin-top:14px">{{Repo count sentence: N at launch (list), N+1 later.}}</p>
+</section>
+
+<!-- ======================================================= 04 EVENTS -->
+<section id="events" class="wrap">
+  <div class="sec-head"><span class="sec-num">04</span><h2>The event bus: who announces what, and who listens</h2>
+    <p class="sec-lede">{{Where this list comes from; delivery guarantees (queue + DLQ per consumer, outbox).}}</p></div>
+  <div class="panel scroll-x"><table class="tbl">
+    <thead><tr><th>Event</th><th>Produced by</th><th>Consumed by</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr class="group"><td colspan="4">{{Domain group}}</td></tr>
+      <tr><td><code>{{EVENT_NAME}}</code> <span class="tag live">outbox</span></td><td>{{producer}}</td><td>{{consumers}}</td><td>{{effect}}</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ======================================================= 05 APIS (OPTIONAL: include when the source lists the API surface) -->
+<section id="apis" class="wrap">
+  <div class="sec-head"><span class="sec-num">05</span><h2>APIs and their domains</h2>
+    <p class="sec-lede">{{API conventions: naming, auth, errors, pagination.}}</p></div>
+  <div class="panel scroll-x"><table class="tbl">
+    <thead><tr><th>Operations</th><th>Ref</th><th>Access</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr class="group"><td colspan="4">{{service-a}}</td></tr>
+      <tr><td class="ops"><code>{{opOne}}</code> · <code>{{opTwo}}</code></td><td class="num">{{n}}</td><td><span class="tag live">JWT</span> <span class="tag api">API key</span> <span class="tag dev">dev only</span> <span class="tag adm">admin</span></td><td>{{note}}</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ======================================================= 06 FEATURES -->
+<section id="features" class="wrap">
+  <div class="sec-head"><span class="sec-num">06</span><h2>Features, and where each one stands</h2>
+    <p class="sec-lede">{{What the three statuses mean here (live/partial/planned, or launch/gated/later for a design).}}</p></div>
+  <div class="filter" role="group" aria-label="Filter features">
+    <button type="button" data-filter="all" aria-pressed="true">All</button>
+    <button type="button" data-filter="live" aria-pressed="false">{{Live}}</button>
+    <button type="button" data-filter="partial" aria-pressed="false">{{Partial}}</button>
+    <button type="button" data-filter="planned" aria-pressed="false">{{Planned}}</button>
+  </div>
+  <div class="feat-grid" id="feat-grid">
+    <div class="panel feat-group"><h4>{{Area}}</h4><ul>
+      <li data-s="live"><span>{{Feature}}<small>{{detail}}</small></span><span class="tag live">{{status}}</span></li>
+      <li data-s="partial"><span>{{Feature}}<small>{{what is missing}}</small></span><span class="tag partial">{{status}}</span></li>
+      <li data-s="planned"><span>{{Feature}}<small>{{when}}</small></span><span class="tag planned">{{status}}</span></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ======================================================= 07 PLANS -->
+<section id="plans" class="wrap">
+  <div class="sec-head"><span class="sec-num">07</span><h2>Plans, and {{how the metered thing or entitlement works}}</h2>
+    <p class="sec-lede">{{Where entitlement comes from. Say which prices are placeholders.}}</p></div>
+  <div class="panel scroll-x"><table class="tbl tier-tbl">
+    <thead><tr><th>Capability</th><th>{{Tier 1}}</th><th>{{Tier 2}}</th><th>{{Lapsed / free}}</th></tr></thead>
+    <tbody>
+      <tr><td>Price ({{placeholder or real}})</td><td>{{$}}</td><td>{{$}}</td><td class="no">—</td></tr>
+      <tr><td>{{Capability}}</td><td>yes</td><td>yes</td><td class="no">no</td></tr>
+    </tbody>
+  </table></div>
+  <figure class="panel life-fig"><div class="scroll-x">
+    <svg class="life-svg" viewBox="0 0 900 270" role="img" aria-label="{{describe the lifecycle or metering mechanism}}">
+      <defs><marker id="h-ink" class="mk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z"></path></marker>
+      <marker id="h-alt" class="mk-alt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+      <rect class="b ok" x="20" y="54" width="250" height="104" rx="9"></rect><text class="t" x="36" y="82">1 · {{State}}</text><text class="d" x="36" y="106">{{what moves it here}}</text>
+      <rect class="b" x="325" y="54" width="250" height="104" rx="9"></rect><text class="t" x="341" y="82">2 · {{State}}</text><text class="d" x="341" y="106">{{...}}</text>
+      <rect class="b hot" x="630" y="54" width="250" height="104" rx="9"></rect><text class="t" x="646" y="82">3 · {{State}}</text><text class="d" x="646" y="106">{{...}}</text>
+      <path class="e" d="M270 106 H323" marker-end="url(#h-ink)"></path><text class="l" x="276" y="96">{{edge}}</text>
+      <path class="e" d="M575 106 H628" marker-end="url(#h-ink)"></path><text class="l" x="580" y="96">{{edge}}</text>
+      <path class="e alt" d="M145 158 V230 H753 V160" marker-end="url(#h-alt)"></path><text class="l alt" x="160" y="222">{{alternate path}}</text>
+    </svg></div>
+    <figcaption>{{One sentence on the mechanism.}}</figcaption></figure>
+  <div class="two" style="margin-top:16px"><div class="panel" style="padding:16px"><h4>Rules worth knowing</h4><ul class="plain">
+    <li>{{rule}}</li>
+  </ul></div></div>
+</section>
+
+<!-- ======================================================= 08 ACCESS (OPTIONAL: include when the source has a permission model) -->
+<section id="access" class="wrap">
+  <div class="sec-head"><span class="sec-num">08</span><h2>Who can do what</h2>
+    <p class="sec-lede">{{Where authorization is evaluated and what denials look like.}}</p></div>
+  <div class="panel scroll-x"><table class="tbl">
+    <thead><tr><th>Action</th><th>Allowed when (all must hold)</th><th>Denial</th></tr></thead>
+    <tbody><tr class="group"><td colspan="3">{{Group}}</td></tr><tr><td><code>{{resource.action}}</code></td><td>{{rule}}</td><td><code>{{CODE}}</code></td></tr></tbody>
+  </table></div>
+</section>
+
+<!-- ======================================================= 09 STACK -->
+<section id="stack" class="wrap">
+  <div class="sec-head"><span class="sec-num">09</span><h2>Technology</h2><p class="sec-lede">{{Versions as pinned / as the design states them.}}</p></div>
+  <div class="stack-grid">
+    <div class="panel"><h4>{{Layer}}</h4><ul><li><span>{{Tool}}</span><span>{{version or role}}</span></li></ul></div>
+  </div>
+</section>
+
+<!-- ======================================================= 10 ENVIRONMENTS -->
+<section id="envs" class="wrap">
+  <div class="sec-head"><span class="sec-num">10</span><h2>Environments, domains and delivery</h2>
+    <p class="sec-lede">{{Accounts, regions, branches; how an env is identified.}}</p></div>
+  <div class="panel scroll-x"><table class="tbl">
+    <thead><tr><th>What</th><th>{{dev}}</th><th>{{prod}}</th></tr></thead>
+    <tbody><tr><td>{{API}}</td><td><code>{{host}}</code></td><td><code>{{host}}</code></td></tr></tbody>
+  </table></div>
+  <ol class="pipeline" aria-label="Delivery pipeline">
+    <li><b>{{Stage}}</b><span>{{what happens}}</span></li>
+    <li><b>{{Stage}}</b><span>{{what happens}}</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================= 11 SECURITY -->
+<section id="security" class="wrap">
+  <div class="sec-head"><span class="sec-num">11</span><h2>Security and operations</h2></div>
+  <div class="panel posture"><b>Posture.</b> {{Compliance target or explicit non-target; the outcome the controls aim at.}}</div>
+  <div class="two">
+    <div class="panel" style="padding:16px"><h4>Access</h4><ul class="plain"><li>{{control}}</li></ul></div>
+    <div class="panel" style="padding:16px"><h4>Content and data</h4><ul class="plain"><li>{{control}}</li></ul></div>
+    <div class="panel" style="padding:16px"><h4>Edge</h4><ul class="plain"><li>{{control}}</li></ul></div>
+    <div class="panel" style="padding:16px"><h4>Operations</h4><ul class="plain"><li>{{control}}</li></ul></div>
+  </div>
+</section>
+
+<!-- ======================================================= 12 ROLLOUT (OPTIONAL: for designs not yet built) -->
+<section id="rollout" class="wrap">
+  <div class="sec-head"><span class="sec-num">12</span><h2>Rollout</h2><p class="sec-lede">{{Order of stand-up and how waves are promoted.}}</p></div>
+  <ol class="pipeline ms" aria-label="Milestones"><li><b>{{M0 · name}}</b><span>{{scope}}</span></li><li><b>{{M1 · name}}</b><span>{{scope}}</span></li></ol>
+</section>
+
+<!-- ======================================================= 13 DECISIONS AND OPEN ITEMS -->
+<section id="open" class="wrap">
+  <div class="sec-head"><span class="sec-num">13</span><h2>Decisions and open items</h2><p class="sec-lede">{{When decisions were recorded; what open items wait on.}}</p></div>
+  <h4>Decided</h4><div class="open"><div class="panel"><b>{{ID · decision}}</b><span>{{one sentence}}</span></div></div>
+  <h4 style="margin-top:22px">Still open</h4><div class="open"><div class="panel"><b>{{item}}</b><span>{{what it waits on}}</span></div></div>
+</section>
+</main>
+<footer class="wrap">{{Built from SOURCE (revision, date) ... State "design only" if nothing is built. Say that unverified facts are marked the same way here.}}</footer>
+
+<script>
+  (function () {
+    var buttons = document.querySelectorAll('.filter button');
+    var items = document.querySelectorAll('#feat-grid li[data-s]');
+    var groups = document.querySelectorAll('#feat-grid .feat-group');
+    function apply(filter) {
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.filter === filter)); });
+      items.forEach(function (li) { li.hidden = filter !== 'all' && li.dataset.s !== filter; });
+      groups.forEach(function (g) {
+        var any = Array.prototype.some.call(g.querySelectorAll('li[data-s]'), function (li) { return !li.hidden; });
+        g.hidden = !any;
+      });
+    }
+    buttons.forEach(function (b) { b.addEventListener('click', function () { apply(b.dataset.filter); }); });
+  })();
+</script>
+</body></html>

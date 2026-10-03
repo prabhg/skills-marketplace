@@ -1,0 +1,70 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>body{font-family:"IBM Plex Sans",sans-serif;background:#fff}</style>
+</head><body>
+<div id="stage"></div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(async function () {
+  const log = [];
+  try {
+    await document.fonts.load('16px "IBM Plex Sans"');
+    await document.fonts.load('600 16px "IBM Plex Sans"');
+    await document.fonts.ready;
+    const diagrams = await (await fetch("diagrams.json?" + Date.now())).json();
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      look: 'neo',
+      securityLevel: 'strict',
+      fontFamily: '"IBM Plex Sans", system-ui, sans-serif',
+      themeVariables: {
+        fontFamily: '"IBM Plex Sans", system-ui, sans-serif',
+        fontSize: '16px',
+        primaryTextColor: '#14161a',
+        textColor: '#14161a',
+        actorBkg: '#eef2f7',
+        actorBorder: '#8e9aad',
+        actorTextColor: '#14161a',
+        actorLineColor: '#b3bccb',
+        signalColor: '#2c323d',
+        signalTextColor: '#14161a',
+        labelBoxBkgColor: '#e6ebf2',
+        labelBoxBorderColor: '#8e9aad',
+        labelTextColor: '#14161a',
+        loopTextColor: '#14161a',
+        noteBkgColor: '#fff4d6',
+        noteBorderColor: '#d9a93a',
+        noteTextColor: '#14161a',
+        activationBkgColor: '#eef2f7',
+        activationBorderColor: '#8e9aad',
+        sequenceNumberColor: '#ffffff',
+      },
+      sequence: {
+        wrap: false, mirrorActors: false, width: 112, height: 58,
+        actorMargin: 18, messageMargin: 28, boxMargin: 8, noteMargin: 10,
+        actorFontSize: 16, messageFontSize: 16, noteFontSize: 16,
+        actorFontFamily: '"IBM Plex Sans", system-ui, sans-serif',
+        messageFontFamily: '"IBM Plex Sans", system-ui, sans-serif',
+        noteFontFamily: '"IBM Plex Sans", system-ui, sans-serif',
+        useMaxWidth: true,
+      },
+    });
+    for (const d of diagrams) {
+      try {
+        const { svg } = await mermaid.render(d.id, d.code);
+        await fetch('/save/' + d.id + '.svg', { method: 'POST', body: svg });
+        log.push({ id: d.id, ok: true });
+      } catch (e) {
+        log.push({ id: d.id, ok: false, err: String(e && e.message || e) });
+        document.querySelectorAll('[id^="d' + d.id + '"]').forEach(n => n.remove());
+      }
+    }
+  } catch (e) {
+    log.push({ fatal: String(e && e.message || e) });
+  }
+  await fetch('/done', { method: 'POST', body: JSON.stringify(log) });
+})();
+</script>
+</body></html>

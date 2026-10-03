@@ -1,0 +1,8 @@
+{
+  "name": "architecture-share-doc",
+  "version": "0.1.0",
+  "description": "Build a single-file HTML architecture review doc for a team: layered system map, one pre-rendered sequence diagram per user action, services and ownership, APIs by domain, tiers, access rules, environments, security, rollout and decisions.",
+  "author": {
+    "name": "Prabhh Ghumn"
+  }
+}
