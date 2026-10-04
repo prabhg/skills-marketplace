@@ -41,6 +41,7 @@ Sync `~/.claude/settings.json` in dotfiles and the marketplace installs itself o
 | `fokus` | [prabhg/fokus-skill](https://github.com/prabhg/fokus-skill) | Action-first output shaping: next action first, numbered steps, no tangents, visible progress. |
 | `tidy-workspace` | vendored (`plugins/tidy-workspace`) | End-of-session cleanup pass: stale worktrees, merged branches, disk, temp handoff docs, agent memory. Invoke with `/tidy-workspace:end-of-session-cleanup`. |
 | `architecture-share-doc` | vendored (`plugins/architecture-share-doc`) | Team-shareable single-file HTML architecture doc: system map, one flow diagram per user action, services, APIs, tiers, security, rollout. Needs Chrome + network at build time. |
+| `project-planning-repo` | vendored (`plugins/project-planning-repo`) | Private `project/` delivery-planning repo (branch `planning`) beside multi-repo projects: cross-repo ARCHITECTURE + BACKLOG, handoff hygiene, sync-on-fetch, never referenced from repos. |
 
 ## Adding a plugin
 

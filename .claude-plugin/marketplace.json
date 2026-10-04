@@ -27,6 +27,12 @@
       "description": "Build a single-file HTML architecture review doc for a team: layered system map, one pre-rendered sequence diagram per user action, services and ownership, APIs by domain, tiers, access rules, environments, security, rollout and decisions.",
       "source": "./plugins/architecture-share-doc",
       "category": "productivity"
+    },
+    {
+      "name": "project-planning-repo",
+      "description": "Set up and maintain a private project/ delivery-planning repo (branch planning) beside a multi-repo project: cross-repo ARCHITECTURE + BACKLOG, temp handoffs with clean-when headers, closed-ticket archive, sync-on-fetch and never-referenced-from-repos rules.",
+      "source": "./plugins/project-planning-repo",
+      "category": "productivity"
     }
   ]
 }
