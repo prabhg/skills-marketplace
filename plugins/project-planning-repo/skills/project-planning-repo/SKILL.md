@@ -23,9 +23,15 @@ management docs needed only by whoever leads delivery (the owner, maybe one seni
 3. **Sync on fetch** — any agent that fetches/pulls `dev` (or the integration branch) of any repo, or scans it for
    latest code, runs `git log <synced sha>..origin/<branch>`, updates ARCHITECTURE/BACKLOG, bumps the `synced:`
    stamp, and commits in `project/`. Repo code wins over these docs.
-4. **Temp docs** (`temp/` committable, `local/` gitignored) start with a Purpose / Owner / Created / Clean-when
-   header and are indexed in `temp/README.md`; delete (to `~/.Trash`) once done. Any agent may delete an orphan
-   whose clean-when provably holds.
+4. **Temp docs** (`temp/` committable, `local/` gitignored) — enforced by every agent that reads or writes
+   `project/`: each starts with a `> Purpose / > Use / > Delete when / > Owner · Created` snippet (temp/ ones also
+   indexed in `temp/README.md`). Delete as soon as not needed: session-state handoffs (pre-`/compact`,
+   agent→agent) and knowledge-transfer notes are deleted by the **next agent right after reading** (durable facts
+   go to a main doc / repo doc / memory first). Every touch of `project/` sweeps both folders for docs whose
+   delete-when holds. Delete = `git rm` (temp/) or `~/.Trash` (local/).
+4a. **Small and few.** Every doc costs context for every agent that reads it: prefer editing an existing doc,
+   delete what no longer earns its place, never keep superseded versions of a doc (fold what's still true into
+   the current one, then delete the old).
 5. **Treeshake** main docs on every edit: current state only, no decision history (cite `repo@sha`), compressed,
    link into repo docs instead of restating. ARCHITECTURE ≤ ~200 lines; BACKLOG = open tickets only; closed
    tickets move to `docs/archive/BACKLOG-CLOSED.md` (one line each, never loaded on start).
@@ -45,7 +51,7 @@ Do these in order. Read-only discovery first; anything destructive is printed an
    `docs/{ARCHITECTURE.md,BACKLOG.md}`, `docs/archive/BACKLOG-CLOSED.md`, `temp/README.md`, `local/README.md`.
    Gitignore `local/*` (keep its README) and anything that is someone else's confidential material.
 4. **Move** loose material in (`mv`, keep folder names to limit broken references). Then **triage each handoff**
-   against the current code/branches: still valid → `temp/` + header + index row (add a dated drift note if facts
+   against the current code/branches: still valid → `temp/` + snippet + index row (add a dated drift note if facts
    moved); superseded or done → port open items to BACKLOG, record in the closed archive, move file to `~/.Trash`.
    If a read of a doc is blocked, track its metadata in `temp/README.md` instead and tell the user.
 5. **Scan repos** with parallel read-only subagents (one per repo/area: app code, shared packages, CI/release +
@@ -75,7 +81,9 @@ Do these in order. Read-only discovery first; anything destructive is printed an
 - On start: read `project/AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/BACKLOG.md`, `temp/README.md`.
 - After fetching a repo: run the sync rule; close fixed tickets (archive line with `repo@sha`), add new ones,
   bump `next id`, commit.
-- Clean temp docs whose clean-when holds; treeshake any main doc you touch.
+- Sweep `temp/` + `local/`: delete docs whose delete-when holds; if you read a handoff/knowledge-transfer note,
+  delete it once its facts are absorbed; add the snippet to any temp doc missing it (or ask the owner).
+- Treeshake any main doc you touch; fold superseded doc versions into the current one and delete them.
 
 ## Gotchas
 

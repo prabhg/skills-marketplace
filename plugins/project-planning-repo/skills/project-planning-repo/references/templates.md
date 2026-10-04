@@ -19,6 +19,9 @@ Doc placement across repos:
 
 Commit here after any doc change.
 
+**Keep planning docs small and few.** Every doc adds to the context of every agent that reads it. Prefer
+editing an existing doc over adding one; delete what no longer earns its place.
+
 ## Load on start
 
 1. `docs/ARCHITECTURE.md` — bird's-eye view across repos.
@@ -44,13 +47,20 @@ Do **not** load `docs/archive/` unless looking up a specific closed id.
 2. **Sync on fetch.** Any agent that fetches/pulls `<integration branch>` of any repo, or scans it for latest
    code: `git log <synced sha>..origin/<branch>` per repo → update ARCHITECTURE / BACKLOG → bump `synced:` →
    commit. Repo code wins over these docs.
-3. **Temp docs** (`temp/`, `local/`) start with the header below and are listed in `temp/README.md`.
-   Delete when the work lands or clean-when holds; move durable facts to a main doc, repo doc or memory
-   first. Any agent may delete an orphan whose clean-when is provably true; else ask. Delete = `~/.Trash`.
-   ```
-   > Purpose: <one line>  · Owner: <agent/session, date>  · Created: YYYY-MM-DD
-   > Clean when: <checkable condition>
-   ```
+3. **Temp docs** (`temp/`, `local/`) — every agent that reads or writes in `project/` enforces this:
+   - Each starts with this snippet (and `temp/` docs get a row in `temp/README.md`):
+     ```
+     > Purpose: <why this doc exists>
+     > Use: <who reads it, for what, when>
+     > Delete when: <checkable condition, e.g. "next agent has read it" or "origin/dev contains the X merge">
+     > Owner: <agent/session> · Created: YYYY-MM-DD
+     ```
+   - **Delete as soon as it is no longer needed.** Session-state handoffs (e.g. before `/compact`, or
+     agent→agent) and pure knowledge-transfer notes are deleted by the **next agent right after reading**
+     — move durable facts into a main doc, repo doc or memory first.
+   - Keep `temp/` and `local/` uncluttered: whenever you touch `project/`, delete docs whose delete-when
+     holds; add the snippet to any doc missing it if its purpose is clear, else ask the owner.
+   - Delete = `git rm` in `temp/`, move to `~/.Trash` in `local/`.
 4. **Treeshake** on every edit: current state only, no decision history (cite `repo@sha`), compressed,
    link into repo docs. ARCHITECTURE ≤ ~200 lines; BACKLOG open tickets only.
 5. **Backlog hygiene.** Ticket = id, title, severity, repos, gate, evidence (`path:line @sha`), fix. Closed →
@@ -117,8 +127,12 @@ local/*
 ```markdown
 # temp/ — live handoffs index
 
-| Doc | Purpose | Owner / created | Clean when |
-|---|---|---|---|
+> Purpose: index of live temp docs so agents can judge them without opening each one.
+> Use: read on load; add a row when creating a temp doc, remove it when deleting one.
+> Delete when: never (permanent index).
+
+| Doc | Purpose | Use | Delete when | Owner / created |
+|---|---|---|---|---|
 
 ## Drift notes (<date>) — read before executing
 ```
@@ -128,8 +142,12 @@ local/*
 ```markdown
 # local/
 
-Gitignored scratch: logs, machine-specific notes, sensitive temp files. Same header and cleanup rules as
-`temp/` (see `../AGENTS.md` rule 3).
+> Purpose: explains this gitignored folder.
+> Use: read when creating a local temp doc.
+> Delete when: never (permanent).
+
+Gitignored scratch: logs, machine-specific notes, sensitive temp files. Same snippet and deletion rules as
+`temp/` (see `../AGENTS.md` rule 3); delete by moving to `~/.Trash`.
 ```
 
 ## Wrapper AGENTS.md section
