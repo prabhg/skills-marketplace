@@ -16,7 +16,8 @@ Only branches with `review: APPROVE` (and a scoped re-review for any later commi
 ROLE: integrator. Tier: <sonnet|haiku>. Repo <path>, integration branch <name> (main checkout <path>).
 MERGE IN ORDER: <branch → ticket>, … (each was reviewed and approved at head <sha>; refuse any branch
   whose head differs).
-STEPS: ensure the main checkout is clean and on <integration>; `git merge --no-ff <branch> -m "<repo
+STEPS: ensure the main checkout is clean and on <integration> (untracked or modified files there: do not
+  delete them — list them in the report and stop); `git merge --no-ff <branch> -m "<repo
   merge style>"` for each; on conflict: resolve only if both sides' intent is clear from the tickets'
   DoD (<pointers>), else `git merge --abort` and report BLOCKED with the conflicting files.
 GREEN: run <build/test/lint commands> on the merged integration branch. Paste command, exit code, result line.
@@ -61,5 +62,6 @@ into the docs above, then delete the scratch dir.
 1. All tickets `done`, `parked` (with Ruling) or `cancelled`; integration branch green with evidence.
 2. Cleanup + treeshake done.
 3. Final report to the owner (format in SKILL.md) — includes every Ruling.
-4. Delete the state file and scratch dir (and its index row / `git rm` in a committed temp folder).
+4. Delete the state file **and** the whole scratch dir (briefs, reports, wt, any stray report files) and
+   its index row / `git rm` in a committed temp folder; `ls` the parent to show they are gone.
 5. If the run was a takeover, confirm the old session is retired or tell the owner it can be closed.

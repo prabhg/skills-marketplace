@@ -14,7 +14,8 @@ scope); never retry unchanged.
 ```
 ROLE: implementer for ticket <id> — <title>. Tier: <haiku|sonnet|opus>.
 GOAL: <one or two sentences: the outcome, not the steps>.
-WORKTREE: <abs path> on branch <branch> (based on <integration>@<sha>). Work and commit only here.
+WORKTREE: <abs path> on branch <branch> (based on <integration>@<sha>). Work and commit only here; never write in
+  the main checkout or any other path (stray files there block the merge).
 FIRST READ: <repo>/AGENTS.md or CLAUDE.md (repo rules win); then <pointers: file paths / doc §sections>.
 SCOPE: may change <dirs/files>. Must not touch <shared files / other tickets' areas / integration branch>.
 DEFINITION OF DONE (each must be proven by a command you ran):
@@ -41,7 +42,8 @@ TARGET: repo <path>, branch <branch>, base <integration>@<sha>. Diff: `git diff 
 TICKET DoD: <paste the DoD list, or pointer to spec §ticket>.
 FIRST READ: <repo>/AGENTS.md or CLAUDE.md, and only the code needed to judge the diff.
 CHECK: each DoD item — run its proof command yourself (in the worktree, or `git worktree add` a
-  temporary checkout and remove it after). Then correctness, security/privacy, scope creep (changes
+  temporary checkout under <scratch>/wt/ and remove it after; any scratch files you make (mutation
+  copies etc.) go under <scratch> only). Then correctness, security/privacy, scope creep (changes
   outside the ticket), tests that actually test the behaviour, repo conventions.
 DO NOT: fix code, commit, merge, push, or read the implementer's report.
 REPORT FILE: <path> — evidence per DoD item (command, exit code, result line), findings with file:line.

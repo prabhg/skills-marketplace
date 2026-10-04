@@ -72,7 +72,10 @@ somewhere the reviewer can read.
 
 - Rewrite CURRENT STATE (and bump heartbeat) on every state change: dispatch, report received, verdict,
   merge, ruling, approval, peer contact. Record a dispatch **before** sending it, so a crash leaves a trace.
-- Tickets table: update the row in place. Waves/Decisions/Rulings: append one line each; never essays.
+- Tickets table: update the affected rows in the same write (status, review verdict, merge sha) — a top
+  block that says `done` over a table that says `in_progress` misleads the next session.
+  Waves/Decisions/Rulings: append one line each; never essays.
+- Keep every template field and column (DoD included); write `none` instead of dropping one.
 - Write with one whole-file write or targeted edits; never append duplicates of CURRENT STATE.
 - If the file grows past ~250 lines, move finished-wave detail to a one-line summary per wave.
 

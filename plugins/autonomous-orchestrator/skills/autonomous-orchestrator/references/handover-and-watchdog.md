@@ -23,9 +23,10 @@ do not wait for the heartbeat to go stale.
 
 1. **Read only the top block** (CURRENT STATE) — e.g. read the first ~40 lines. Load the ticket table only
    when step 4 needs it.
-2. **Claim ownership:** write your identity + heartbeat into `Orchestrator:` and add a Ruling line
-   `Ruling: took over from <old identity> at <ts>`. Identity = harness session name/id if exposed, else
-   `orch-<slug>-<yyyymmddHHMM>`.
+2. **Claim ownership:** write your identity + a fresh heartbeat into `Orchestrator:` and add a Ruling line
+   `Ruling: took over from <old identity> at <ts>`. Your identity must differ from the previous one:
+   harness session name/id if exposed, else `orch-<slug>-<yyyymmddHHMM>` from the current time. Bump the
+   heartbeat on every later write, so the next abandonment check can tell you are alive.
 3. **Retire the previous orchestrator** if it may still be running: message it (session messaging tool)
    `RETIRE: <new identity> owns <state path> from <ts>. Stop dispatching, confirm, go quiet.` Wait up to
    ~5 min for `RETIRED`. No messaging tool or no reply: assume it is dead or stopped, note it, continue —

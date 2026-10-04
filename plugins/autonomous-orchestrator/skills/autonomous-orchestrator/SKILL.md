@@ -71,7 +71,8 @@ Phases in order. Read each reference file only when you enter its phase.
 2. **Spec + tickets + waves (delegated).** An opus (or sonnet for small goals) planner writes the spec and
    the ticket table to files. `process-prd-to-tech-spec` may be used inside that subagent if installed —
    override its output location to the scratch dir and its ticket format to §4. You review the ticket
-   table, not the spec body.
+   table, not the spec body. *Tiny goals* (≤3 obvious tickets, orientation fits in ≤5 tool calls): you
+   may orient and cut tickets yourself — log a Ruling. Implementation and review are never tiny.
 3. **Critical-decision batch** (§5) → owner. Record answers verbatim. Unblocked planning continues.
 4. **Dispatch a wave.** Create one worktree + branch per ticket off the integration branch (repo
    convention for worktree location wins; default: outside the product repo, under the scratch dir). Use
@@ -166,6 +167,8 @@ reads those files and returns a recommendation. Record the outcome as a Ruling (
 **One state file is the only durable memory** (`references/state-file.md`: location, template, update
 rules, abandonment check, deletion). Its top block **CURRENT STATE** is rewritten on every state change
 and must let a fresh session resume from it alone. Briefs and reports are disposable scratch next to it.
+Every template field is mandatory (write `none`, never omit). Each write updates CURRENT STATE, the
+affected ticket rows and the heartbeat together — counts in the top block must match the table.
 
 **Handover.** When your context is around half used — a compaction/summary event happened, a visible
 token counter is past ~50%, you have run several waves or many hours, or replies feel slow and repetitive
@@ -217,4 +220,5 @@ Protocol and message formats: `references/coordination.md`.
 
 Goal and outcome; tickets done/parked/cancelled; merge shas on the integration branch; green evidence
 (command + result); cleanup done (worktrees, branches local/remote); docs touched; **every Ruling** you
-made, one line each with cost-if-wrong; open items needing the owner. Then delete the state file.
+made, one line each with cost-if-wrong; open items needing the owner. Count the words; trim to the cap —
+the owner reads it on a phone. Then delete the state file **and** the scratch dir, and verify with `ls`.
