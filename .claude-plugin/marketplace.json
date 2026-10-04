@@ -33,6 +33,12 @@
       "description": "Set up and maintain a private project/ delivery-planning repo (branch planning) beside a multi-repo project: cross-repo ARCHITECTURE + BACKLOG, temp handoffs with clean-when headers, closed-ticket archive, sync-on-fetch and never-referenced-from-repos rules.",
       "source": "./plugins/project-planning-repo",
       "category": "productivity"
+    },
+    {
+      "name": "autonomous-orchestrator",
+      "description": "Run long unattended multi-agent builds from one session: lean-context orchestrator, tickets with DoD, cheapest-capable subagents in worktrees, review before every merge, wave merges to dev, green builds, cleanup, one resumable state file with handover/takeover.",
+      "source": "./plugins/autonomous-orchestrator",
+      "category": "productivity"
     }
   ]
 }
