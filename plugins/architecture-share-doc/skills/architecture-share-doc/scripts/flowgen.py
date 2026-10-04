@@ -56,7 +56,9 @@ def wrap(text, width=22):
     return '<br/>'.join(lines)
 
 
-def participant_label(name):
+def participant_label(name, person=False):
+    if person:
+        return name  # actor labels sit under the stick-figure icon; a wrapped second line overlaps it
     if name.endswith('-service'):
         return name[:-len('service')] + '<br/>service'
     return wrap(name, 13)
@@ -68,7 +70,7 @@ def gen(flow, registry):
     for a in flow['parts']:
         p = registry[a]
         kw = 'actor' if p['group'] == 'person' else 'participant'
-        out.append(f'  {kw} {a} as {participant_label(names.get(a, p["name"]))}')
+        out.append(f'  {kw} {a} as {participant_label(names.get(a, p["name"]), kw == "actor")}')
     kinds = []
     ww = flow.get('ww', 22)
     persons = {a for a in flow['parts'] if registry[a]['group'] == 'person'}
