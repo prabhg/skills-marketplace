@@ -72,6 +72,7 @@ somewhere the reviewer can read.
 
 - Rewrite CURRENT STATE (and bump heartbeat) on every state change: dispatch, report received, verdict,
   merge, ruling, approval, peer contact. Record a dispatch **before** sending it, so a crash leaves a trace.
+  This covers every role — reviewers and integrators too, not just implementers.
 - Tickets table: update the affected rows in the same write (status, review verdict, merge sha) — a top
   block that says `done` over a table that says `in_progress` misleads the next session.
   Waves/Decisions/Rulings: append one line each; never essays.

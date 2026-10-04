@@ -169,6 +169,9 @@ rules, abandonment check, deletion). Its top block **CURRENT STATE** is rewritte
 and must let a fresh session resume from it alone. Briefs and reports are disposable scratch next to it.
 Every template field is mandatory (write `none`, never omit). Each write updates CURRENT STATE, the
 affected ticket rows and the heartbeat together — counts in the top block must match the table.
+Mechanical rule: every dispatch of **any** role (implementer, reviewer, integrator, reader, critic) and
+every report received is paired with a state write in the same turn; `In flight` lists all of them. A
+successor that cannot see a running reviewer will re-dispatch or merge unreviewed.
 
 **Handover.** When your context is around half used — a compaction/summary event happened, a visible
 token counter is past ~50%, you have run several waves or many hours, or replies feel slow and repetitive

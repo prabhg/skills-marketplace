@@ -63,5 +63,5 @@ into the docs above, then delete the scratch dir.
 2. Cleanup + treeshake done.
 3. Final report to the owner (format in SKILL.md) — includes every Ruling.
 4. Delete the state file **and** the whole scratch dir (briefs, reports, wt, any stray report files) and
-   its index row / `git rm` in a committed temp folder; `ls` the parent to show they are gone.
+   its index row / `git rm` in a committed temp folder; `ls` the parent to show they are gone. Remove a now-empty `.orchestrator/` too.
 5. If the run was a takeover, confirm the old session is retired or tell the owner it can be closed.
