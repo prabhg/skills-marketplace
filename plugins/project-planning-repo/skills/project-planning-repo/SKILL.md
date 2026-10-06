@@ -1,6 +1,6 @@
 ---
 name: project-planning-repo
-description: 'Create or maintain a private `project/` delivery-planning git repo (branch `planning`) inside a multi-repo wrapper folder: one central cross-repo ARCHITECTURE.md and BACKLOG.md, temp/local handoff folders with purpose + clean-when headers, a closed-ticket archive agents do not load, and the rules that repos never reference it and that it is re-synced after every dev fetch. Use when the user asks to "set up a project folder", "central backlog/architecture across repos", "planning repo", "move handoffs/research/plans into project/", "scan all repos and list risks as tickets", or to sync/treeshake an existing project/ folder, or to enable/disable GitHub Issues tracking for it.'
+description: 'Create or maintain a private `project/` delivery-planning git repo (branch `planning`) inside a multi-repo wrapper folder: one central cross-repo ARCHITECTURE.md and BACKLOG.md, temp/local handoff folders with purpose + clean-when headers, a closed-ticket archive agents do not load, and the rules that repos never reference it and that it is re-synced after every dev fetch. Use when the user asks to "set up a project folder", "central backlog/architecture across repos", "planning repo", "move handoffs/research/plans into project/", "scan all repos and list risks as tickets", or to sync/treeshake an existing project/ folder, or to enable/disable GitHub Issues tracking for it. Also use to run the periodic treeshake (memory, temp/, local/, docs older than 7 days), or to upgrade an existing project/ folder to the latest skill rules.'
 license: MIT
 metadata:
   category: productivity
@@ -117,7 +117,7 @@ The user may enable or disable tracking at any time; the `## Tracking` block is 
 
 ## Maintenance (any later session)
 
-- On start: read `project/AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/BACKLOG.md` (or, with tracking on, the
+- On start: check the `## Treeshake` block; read `project/AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/BACKLOG.md` (or, with tracking on, the
   refreshed `issues/BACKLOG.md`), `temp/README.md`.
 - After fetching a repo: run the sync rule; close fixed tickets (archive line with `repo@sha`, or close the issue
   with evidence when tracking is on), add new ones, bump `next id`, commit.
@@ -133,6 +133,34 @@ The user may enable or disable tracking at any time; the `## Tracking` block is 
     verification, limits). Out-of-date → close as *not planned* with the reason. Partly done → dated status
     comment (`YYYY-MM-DD: done … / left …`), keep open.
   - Only actions within the granted permissions; anything else, ask.
+
+## Periodic treeshake (7-day)
+
+**State of record:** a `## Treeshake` block in `project/AGENTS.md`: `last: YYYY-MM-DD · next due: YYYY-MM-DD (last + 7 days)`.
+
+**Trigger:** every agent that opens `project/` reads the block at session start. If `last` is missing or more than 7 days old, the pass is due: run it before ending the session (or first, if the session has no other work); a busy session may tell the owner it is due instead. Also run on owner request ("treeshake", "cleanup", "condense").
+
+**Scope** = everything older than 7 days: the project's Claude memory dir(s) (`~/.claude/projects/<path-slug>/memory/`, incl. dirs for sessions opened inside a repo), `temp/`, `local/`, and main docs.
+
+**Steps:**
+
+1. Back up the memory dir to a sibling `memory-backup-<date>/` (keep the newest 2 backups; older ones only with owner OK).
+
+2. **Memory:** merge dated state snapshots (build state, batch state, "RESUME HERE", "ON PROD/PENDING") older than 7 days into a few current-truth topic files; delete what is fully done; facts already recorded in project/ or repo docs become a one-line pointer. Keep every `feedback`/`user` memory (tighten wording only). MEMORY.md index ≤ ~6 KB, one line per file, hooks ≤ 15 words. Verify every file is indexed, every index line has a file, every [[link]] resolves. Never touch files another live session wrote in the last hour.
+
+3. **temp/ and local/ files older than 7 days** (Created header, else first git add, else mtime): audit each with a cheap read-only subagent, verdict VALID (open work → issue/BACKLOG, then file can go), INVALID (done/superseded, evidence = repo@sha or closed issue), PROMOTE (durable part → docs/, name target + section). Print the delete list and get owner approval; tracked files → `git rm` (recoverable), untracked → keep until approved; anything that is the only record of unmerged work stays, with a header and index row.
+
+4. **Docs:** keep one current-state brief (≤ ~12 KB, e.g. `docs/CURRENT_STATE.md` or ARCHITECTURE) as the ONLY required session-start read, with a "read X only when doing Y" routing table to the big docs. Condense big docs: drop superseded/struck text, "amended/was X now Y" narration, tombstones, incident stories, duplicates of higher-precedence docs (→ one-line pointer). Keep cited section numbers/anchors, open-question registers and normative values exact. Conflicts between docs → owner questions; never silently resolve. Remove links to deleted temp/ files.
+
+5. Work on a side branch in a worktree when another agent is active in project/; validate (project validators + link check + `git diff --check`), merge into `planning`, push `planning` only (never main).
+
+6. Update the `## Treeshake` stamp; report before/after bytes for MEMORY.md, memory dir, session-start reading and docs.
+
+**Cost control:** lead stays lean — one cheap subagent per doc or temp group (sonnet/haiku for audits, stronger model only for large normative docs), reports go to scratchpad, lead reads verdict tables only; max ~3 concurrent subagents.
+
+## Upgrade an existing project/ folder
+
+When this skill runs in a project/ built by an older version: add the `## Treeshake` block (`last: never`) to `project/AGENTS.md`, add one line to the wrapper `AGENTS.md` always-applies section ("At session start check project/AGENTS.md ## Treeshake; if due, run the project-planning-repo treeshake"), add the temp/ header rule + `temp/README.md` index if missing, commit in project/, then run the first treeshake pass.
 
 ## Gotchas
 

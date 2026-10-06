@@ -1,7 +1,7 @@
 {
   "name": "project-planning-repo",
-  "version": "0.2.0",
-  "description": "Set up and maintain a private `project/` delivery-planning repo beside a multi-repo project: cross-repo ARCHITECTURE + BACKLOG, temp handoffs with clean-when headers, closed-ticket archive, sync-on-fetch and never-referenced-from-repos rules, optional GitHub Issues tracking with a generated backlog snapshot.",
+  "version": "0.3.0",
+  "description": "Set up and maintain a private `project/` delivery-planning repo beside a multi-repo project: cross-repo ARCHITECTURE + BACKLOG, temp handoffs with clean-when headers, closed-ticket archive, sync-on-fetch and never-referenced-from-repos rules, optional GitHub Issues tracking with a generated backlog snapshot, periodic 7-day treeshake of memory, temp/, local/ and docs.",
   "author": {
     "name": "Prabhh Ghumn"
   }

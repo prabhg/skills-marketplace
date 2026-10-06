@@ -150,11 +150,20 @@ Gitignored scratch: logs, machine-specific notes, sensitive temp files. Same sni
 `temp/` (see `../AGENTS.md` rule 3); delete by moving to `~/.Trash`.
 ```
 
+## `## Treeshake` block (append to project/AGENTS.md)
+
+```markdown
+## Treeshake
+
+- last: `<YYYY-MM-DD>` · next due: `<YYYY-MM-DD>` (last + 7 days)
+```
+
 ## Wrapper AGENTS.md section
 
 ```markdown
 ## `project/` (planning docs) — always applies
 
+- At session start check `project/AGENTS.md` `## Treeshake`; if due, run the project-planning-repo treeshake.
 - On session start read `project/AGENTS.md`, `project/docs/ARCHITECTURE.md`, `project/docs/BACKLOG.md`.
   Never load `project/docs/archive/` unless looking up a closed ticket.
 - **Sync rule:** after fetching/pulling `<branch>` of any repo, or scanning it for latest code, run
