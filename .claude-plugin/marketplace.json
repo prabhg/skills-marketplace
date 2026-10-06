@@ -30,7 +30,7 @@
     },
     {
       "name": "project-planning-repo",
-      "description": "Set up and maintain a private project/ delivery-planning repo (branch planning) beside a multi-repo project: cross-repo ARCHITECTURE + BACKLOG, temp handoffs with clean-when headers, closed-ticket archive, sync-on-fetch and never-referenced-from-repos rules.",
+      "description": "Set up and maintain a private project/ delivery-planning repo (branch planning) beside a multi-repo project: cross-repo ARCHITECTURE + BACKLOG, temp handoffs with clean-when headers, closed-ticket archive, sync-on-fetch and never-referenced-from-repos rules, optional GitHub Issues tracking.",
       "source": "./plugins/project-planning-repo",
       "category": "productivity"
     },

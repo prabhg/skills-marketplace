@@ -1,6 +1,6 @@
 ---
 name: project-planning-repo
-description: 'Create or maintain a private `project/` delivery-planning git repo (branch `planning`) inside a multi-repo wrapper folder: one central cross-repo ARCHITECTURE.md and BACKLOG.md, temp/local handoff folders with purpose + clean-when headers, a closed-ticket archive agents do not load, and the rules that repos never reference it and that it is re-synced after every dev fetch. Use when the user asks to "set up a project folder", "central backlog/architecture across repos", "planning repo", "move handoffs/research/plans into project/", "scan all repos and list risks as tickets", or to sync/treeshake an existing project/ folder.'
+description: 'Create or maintain a private `project/` delivery-planning git repo (branch `planning`) inside a multi-repo wrapper folder: one central cross-repo ARCHITECTURE.md and BACKLOG.md, temp/local handoff folders with purpose + clean-when headers, a closed-ticket archive agents do not load, and the rules that repos never reference it and that it is re-synced after every dev fetch. Use when the user asks to "set up a project folder", "central backlog/architecture across repos", "planning repo", "move handoffs/research/plans into project/", "scan all repos and list risks as tickets", or to sync/treeshake an existing project/ folder, or to enable/disable GitHub Issues tracking for it.'
 license: MIT
 metadata:
   category: productivity
@@ -36,6 +36,8 @@ management docs needed only by whoever leads delivery (the owner, maybe one seni
    link into repo docs instead of restating. ARCHITECTURE ≤ ~200 lines; BACKLOG = open tickets only; closed
    tickets move to `docs/archive/BACKLOG-CLOSED.md` (one line each, never loaded on start).
 6. No secrets in `project/`; absolute dates only.
+7. **Optional GitHub Issues tracking** (opt-in, see below). When enabled, issues are the only task status;
+   `issues/BACKLOG.md` is a generated, read-only snapshot and replaces `docs/BACKLOG.md` + the closed archive.
 
 ## Setup workflow
 
@@ -71,19 +73,66 @@ Do these in order. Read-only discovery first; anything destructive is printed an
    never-reference rule, commit-in-project rule) — `project/AGENTS.md` only loads lazily.
 10. **Git:** `git -C project init -b planning && git -C project add -A && git -C project commit -m "chore: initial planning repo"`.
     Check `git check-ignore` on confidential files and sizes (`find project -size +20M`) before committing.
+10a. **Offer GitHub Issues tracking** if `project/` has (or will get) a GitHub remote — see next section.
 11. **Memory:** save a feedback memory with the invariants + why, update layout/env memories and fix every path
     you moved. If another memory dir exists for sessions opened inside a repo, mirror the rule there too.
 12. **Report** tersely: what moved/trashed (and that Trash is recoverable), critical tickets, memory corrections,
     any blocked step, and y/n questions for repo commits/pushes.
 
+## GitHub Issues tracking (optional)
+
+**Ask; never assume.** When `project/` is (or will be) a git repo with a GitHub remote, ask: "Track tasks as
+GitHub Issues on `<owner>/<repo>`? Issues become the single task status; a script pulls them into a committed,
+read-only `issues/BACKLOG.md` snapshot so agents can read the backlog offline." Default = off (markdown backlog).
+
+If yes, get each permission explicitly (one y/n list) and record the answers:
+1. `gh auth status` shows the right account with `repo` scope (else the user runs `gh auth login` /
+   `gh auth refresh -s repo` themselves).
+2. OK to create the label set.
+3. OK to create, comment on and close issues on their behalf (bulk actions still ask each time).
+4. OK to migrate the existing `docs/BACKLOG.md` (and closed archive) into issues.
+
+Then, from `references/templates.md` → *GitHub Issues tracking*:
+- Create labels (`type:` · `severity:` · `status:` · `repo:<name>` per repo). Print the list before creating.
+- Migrate: for each open ticket, check all-state issues for its marker `<!-- planning-import:<id> -->` first
+  (idempotent), create the issue, record `id → URL` in `issues/README.md` immediately. Closed archive rows stay
+  as historical lines in that ledger, not new issues. Then `git rm docs/BACKLOG.md docs/archive/BACKLOG-CLOSED.md`.
+- Add `management/scripts/refresh_backlog.py`, run it, commit the snapshot.
+- Swap in the tracking rules + `## Tracking` block in `project/AGENTS.md` (enabled · date · repo · granted
+  permissions) and the issues line in the wrapper `AGENTS.md` section.
+- Push only the `planning` branch, never `main`; ask before the first push.
+
+If no: record `github-issues: disabled · <date>` in the `## Tracking` block so later sessions don't re-ask.
+
+## Change tracking later
+
+The user may enable or disable tracking at any time; the `## Tracking` block is the state of record.
+- **Enable:** run the full opt-in above (ask + permissions, even if granted before). Ask again before any bulk
+  create/close (more than ~5 issues), stating the exact list.
+- **Disable:** confirm, then stop all GitHub writes; keep the last `issues/BACKLOG.md` (mark it final + date);
+  seed `docs/BACKLOG.md` (open items, keep issue links) and the closed archive from it; restore markdown
+  backlog rules in `project/AGENTS.md`; set the block to `disabled · <date>`; commit. **Never delete issues**,
+  labels or the snapshot.
+- Permissions change only by the user's own words in chat; update the block whenever they do.
+
 ## Maintenance (any later session)
 
-- On start: read `project/AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/BACKLOG.md`, `temp/README.md`.
-- After fetching a repo: run the sync rule; close fixed tickets (archive line with `repo@sha`), add new ones,
-  bump `next id`, commit.
+- On start: read `project/AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/BACKLOG.md` (or, with tracking on, the
+  refreshed `issues/BACKLOG.md`), `temp/README.md`.
+- After fetching a repo: run the sync rule; close fixed tickets (archive line with `repo@sha`, or close the issue
+  with evidence when tracking is on), add new ones, bump `next id`, commit.
 - Sweep `temp/` + `local/`: delete docs whose delete-when holds; if you read a handoff/knowledge-transfer note,
   delete it once its facts are absorbed; add the snippet to any temp doc missing it (or ask the owner).
 - Treeshake any main doc you touch; fold superseded doc versions into the current one and delete them.
+- **Tracking enabled** (check the `## Tracking` block first):
+  - Run `python3 management/scripts/refresh_backlog.py` before reading the backlog; if it fails, call the snapshot
+    stale and infer nothing new/resolved from it. Search GitHub before creating an issue; refresh + commit after
+    any remote change. Never hand-edit the snapshot.
+  - Status lives only in issues — never in docs, handoffs or memory (they may link issues).
+  - Close when merged to the integration branch with a green build, with an evidence comment (`repo@sha`, PR,
+    verification, limits). Out-of-date → close as *not planned* with the reason. Partly done → dated status
+    comment (`YYYY-MM-DD: done … / left …`), keep open.
+  - Only actions within the granted permissions; anything else, ask.
 
 ## Gotchas
 
