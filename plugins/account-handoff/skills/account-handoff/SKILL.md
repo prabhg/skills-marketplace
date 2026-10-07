@@ -31,13 +31,17 @@ session's system prompt; if there is none, derive the slug from the project root
 character becomes `-`) and confirm the folder exists. It is local, outside every git repo, and shared by all
 accounts on this machine. Never put the handoff inside a repository: it names accounts and unfinished work.
 
-| File | Purpose |
-|---|---|
-| `HANDOFF.md` | the one pending handoff (overwritten on each departure) |
-| `snapshot.txt` | git/worktree/memory snapshot taken at departure, for the arrival diff |
-| `accounts.md` | one section per account: label, what it has (plan, models, connectors signed in, quirks), last seen |
-| `log.md` | one line per departure and arrival, newest last |
-| `history/` | consumed handoffs, newest five kept |
+| File | Exists | Purpose |
+|---|---|---|
+| `HANDOFF.md` | only while a handoff is pending | the one pending handoff |
+| `snapshot.txt` | only while a handoff is pending | git/worktree/memory snapshot taken at departure, for the arrival diff |
+| `accounts.md` | always | one section per account: label, what it has (plan, models, connectors signed in, quirks), last seen |
+| `log.md` | always | one line per departure and arrival, newest last, capped at 20 lines |
+| `last-handoff.md` | always after the first arrival | the most recent consumed handoff, overwritten each time (a safety copy, not an archive) |
+
+The folder never holds more than these five files. Arrival cleans up after itself; nothing accumulates
+from one switch to the next, because the durable record of past work is the session transcripts and the
+project's own docs, not old handoffs.
 
 Templates for all of them: [references/templates.md](references/templates.md).
 
@@ -139,12 +143,14 @@ time). Rules that keep it useful:
 
 Then:
 
-1. Update this account's section in `accounts.md` (create the file on first use). Record only what this
+1. Start clean: overwrite any existing `HANDOFF.md` and `snapshot.txt`; write nothing else into the state
+   directory (script output goes to the conversation, not to extra files there).
+2. Update this account's section in `accounts.md` (create the file on first use). Record only what this
    session can observe: the model it runs on, which connectors and tools are connected or asking for
    sign-in, anything the project needed that was missing. Write "unknown" for the rest; do not interview
    the user about their plan.
-2. Append one line to `log.md`.
-3. If a memory directory exists, add the pending-handoff memory file and its one index line at the top of
+3. Append one line to `log.md`.
+4. If a memory directory exists, add the pending-handoff memory file and its one index line at the top of
    `MEMORY.md` (template). The index is loaded into every new session, so the next account's first session
    sees the handoff even if the user forgets to run this skill.
 
@@ -221,13 +227,17 @@ transcripts are still on disk at the paths in the handoff; read the tail of one 
 
 ### 5. Close the handoff
 
-1. Set the header to `status: consumed`, add `arrived` (date, account), and move the file to
-   `history/<YYYY-MM-DD-HHMM>-<from>-to-<current>.md`. Keep the newest five; older ones go to the system
-   trash (`mv <file> ~/.Trash/` on macOS, `gio trash <file>` on Linux), not `rm`.
-2. Remove the pending-handoff memory file and its index line.
-3. Update this account's section in `accounts.md` with what step 2 found (so the next arrival here is
-   faster) and append the arrival to `log.md`.
-4. Report in under ten lines: verified or what differed, what this account lacks, what was resumed, what
+1. Set the header to `status: consumed`, add `arrived` (date, account), and rename the file to
+   `last-handoff.md`, replacing the previous one. Move `snapshot.txt` to the system trash
+   (`mv <file> ~/.Trash/` on macOS, `gio trash <file>` on Linux; not `rm`).
+2. Sweep the folder: anything other than `accounts.md`, `log.md` and `last-handoff.md` (old `history/`
+   folders from earlier versions, stray copies of script output, temp files) goes to the system trash.
+   Trim `log.md` to its newest 20 lines.
+3. Remove the pending-handoff memory file and its index line.
+4. Update this account's section in `accounts.md` with what "Check what this account can do" found (so the
+   next arrival here is faster) and append the arrival to `log.md`. Keep each account's section to a few
+   lines of current facts: rewrite it, do not append history to it.
+5. Report in under ten lines: verified or what differed, what this account lacks, what was resumed, what
    needs the user (sign-ins, decisions).
 
 ---

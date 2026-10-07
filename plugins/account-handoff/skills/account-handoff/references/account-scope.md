@@ -16,7 +16,7 @@ machine when in doubt; products change. Only items the project actually uses bel
 | Project-configured MCP servers | `.mcp.json` and the local servers they start |
 | CLI logins | `git` credentials, `gh`, cloud CLIs, package registries |
 | Other local tools' data | local memory plugins, databases, caches |
-| This skill's handoff state | `~/.claude/projects/<slug>/account-handoff/` |
+| This skill's handoff state (at most five small files) | `~/.claude/projects/<slug>/account-handoff/` |
 
 ## Does not follow (stored with the account, or alive only while it is logged in)
 
