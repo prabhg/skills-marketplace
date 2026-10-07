@@ -55,12 +55,21 @@ Templates for all of them: [references/templates.md](references/templates.md).
 | Found | Phase |
 |---|---|
 | no file, or `status: consumed` | **Depart** |
-| `status: pending`, `from` = current account | **Depart again** (the user kept working after the last run): refresh it and say so |
+| `status: pending`, `from` = current account | **Depart again** (the user kept working after the last run): rebuild it, never consume it; say so in the first line of the reply |
 | `status: pending`, `from` ≠ current account | **Arrive** |
 | cannot tell the account | ask one question: "Are you about to switch away, or did you just switch in?" |
 
-The user can force a phase by saying "depart", "arrive" or "status" (status = print the table above with
-what was found, change nothing).
+The user can force a phase by saying "depart" (also "update", "refresh", "redo the handoff"), "arrive" or
+"status" (status = print the table above with what was found, change nothing). A handoff is only ever
+consumed by a different account than the one that wrote it; if the labels match, or the user says they
+have not switched yet, it is a departure no matter what else the files suggest.
+
+**Depart again** means a full fresh pass of Phase 1, with one difference: read the existing `HANDOFF.md`
+first and carry forward what can no longer be collected, because its source is gone: state blobs from
+sessions that have since closed, entries under "Decided, not yet recorded" that are still unrecorded, and
+account-tied workarounds already worked out. Drop anything the newer state contradicts or that has been
+done since. Everything else (snapshot, session digest, in-flight table, "Resume here") is rebuilt from
+now. Tell the user what changed since the previous handoff in two or three lines.
 
 ---
 
