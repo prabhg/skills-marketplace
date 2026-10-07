@@ -39,6 +39,12 @@
       "description": "Run long unattended multi-agent builds from one session: lean-context orchestrator, tickets with DoD, cheapest-capable subagents in worktrees, review before every merge, wave merges to dev, green builds, cleanup, one resumable state file with handover/takeover.",
       "source": "./plugins/autonomous-orchestrator",
       "category": "productivity"
+    },
+    {
+      "name": "account-handoff",
+      "description": "Carry a project across Claude account logins on one machine: before switching, capture work in flight, live sessions, git state and everything tied to the account into a local handoff; after switching, verify, re-prime and resume. Any number of accounts, repeated round trips.",
+      "source": "./plugins/account-handoff",
+      "category": "productivity"
     }
   ]
 }

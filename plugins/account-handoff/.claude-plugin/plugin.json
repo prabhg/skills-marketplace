@@ -1,0 +1,8 @@
+{
+  "name": "account-handoff",
+  "version": "0.1.0",
+  "description": "Carry a project across Claude account logins on one machine: before switching, capture work in flight, live sessions, git state and everything account-scoped into a local handoff; after switching, verify, re-prime and resume. Works for any number of accounts and repeated round trips.",
+  "author": {
+    "name": "Prabhh Ghumn"
+  }
+}
