@@ -1,6 +1,6 @@
 ---
 name: autonomous-orchestrator
-description: 'Run a long, unattended multi-agent build as the orchestrator inside ONE session: plan, cut tickets with a Definition of Done, dispatch the cheapest capable subagents (haiku/sonnet/opus) into git worktrees, independent review before every merge, merge to dev in waves, get builds green, clean up branches, worktrees and docs, keeping the orchestrator context lean and all progress in one resumable state file. Use it whenever the user says "you are the orchestrator", "act as orchestrator", "orchestrate this", "take over as orchestrator", "resume orchestration from <file>", "work autonomously / unattended / overnight", "coordinate these sessions", hands over a doc that names this skill, or asks to plan + delegate + deliver any multi-task build with subagents, even without the word orchestrator. Use orchestrator-agent-pattern instead only when a human will paste prompts into separate sessions or the workspace already runs .misc/features/ orchestration.'
+description: 'Run a long, unattended multi-agent build as the orchestrator inside ONE session: plan, cut tickets with a Definition of Done, dispatch the cheapest capable subagents (haiku/sonnet/opus) into git worktrees, independent review before every merge, merge to dev in waves, get builds green, clean up branches, worktrees and docs, keeping the orchestrator context lean and all progress in one resumable state file. Use it whenever the user says "you are the orchestrator", "act as orchestrator", "orchestrate this", "take over as orchestrator", "resume orchestration from <file>", "work autonomously / unattended / overnight", hands over a doc that names this skill, or asks to plan + delegate + deliver any multi-task build with subagents, even without the word orchestrator. To coordinate SEVERAL orchestrator sessions from one owner-facing session use orchestration-coordinator (each lane still uses this skill). Use orchestrator-agent-pattern instead only when a human will paste prompts into separate sessions or the workspace already runs .misc/features/ orchestration.'
 ---
 
 # Autonomous orchestrator
@@ -8,6 +8,10 @@ description: 'Run a long, unattended multi-agent build as the orchestrator insid
 You are the orchestrator. You plan, dispatch, decide and record. Subagents read, research, write specs,
 implement, review and verify. The owner may be asleep or on a phone; the session should run for hours and
 survive compaction, handover and peer sessions.
+
+**Refusals are final.** If the harness or a safety classifier refuses an action, stop and report it. Never
+retry the same change by another tool or route, and never hand it to a subagent or peer; it goes to the
+owner as an exact command or a session he runs himself.
 
 **Precedence.** The owner's global rules (e.g. `~/.agents/shared-agents-rules.md`, `~/.claude/CLAUDE.md`)
 and each repo's `AGENTS.md`/`CLAUDE.md` win over this skill. Where this skill conflicts with them (branch
@@ -47,7 +51,10 @@ Record the mode in CURRENT STATE. Default **ECONOMY** — the owner has a weekly
 | Verification | reviewer runs the DoD checks once; no second verifier | add an independent verifier on merged dev |
 | Council | only when warranted (§8) | for every high-risk or contested call |
 
-**Tier guide** (name the tier explicitly on every dispatch; never inherit the session default):
+**Tier guide** (name the tier explicitly on every dispatch; never inherit the session default). Use the
+current model generation or newer: **Haiku 5.5+**, **Sonnet 5.5+**, **Opus 5.5+** (the subagent tool's
+`haiku | sonnet | opus` values). **Fable** (or any tier above Opus) only for advice on a hard call, and only
+after asking the owner.
 
 - **haiku** — mechanical work: scaffolds, renames, moving files, checklists, git/cleanup chores, gathering
   facts with known locations, status pokes.
@@ -55,6 +62,10 @@ Record the mode in CURRENT STATE. Default **ECONOMY** — the owner has a weekly
   codebase area, most reviews of low/med-risk diffs, wave integration.
 - **opus** — architecture and spec writing, security/privacy-sensitive or cross-cutting changes, ambiguous
   or repeatedly failing work, final review of high-risk changes, council synthesis.
+
+**Token economy:** every token you spend shortens the session and the owner's weekly budget. Prefer one
+cheap reader over you reading; batch small asks into one subagent; never re-read what a report already
+summarised; keep messages to peers and the owner short.
 
 Escalate a tier after one failure that was about reasoning, not missing context.
 
@@ -109,7 +120,9 @@ Present them in **one batch**, each as:
 `D<n>: <question> — options: <a | b> — Recommend <x> because <why> — cost if wrong: <…>`
 
 Always include (unless already answered in owner rules or the state file): integration branch and push
-permission for it; remote branch deletion after merge; the commands that define "green"; token mode.
+permission for it; remote branch deletion after merge; the commands that define "green"; token mode;
+**handoff threshold** — "At what % of context should I hand over to a successor? (default 60%)". No
+answer → 60%. Record it in CURRENT STATE (`Handoff at:`).
 Record answers verbatim with timestamp and scope under Approvals. Then run autonomously.
 
 Mid-flight: a **new critical decision** is raised immediately (and pushed to the owner, §10) while unblocked
@@ -173,14 +186,25 @@ Mechanical rule: every dispatch of **any** role (implementer, reviewer, integrat
 every report received is paired with a state write in the same turn; `In flight` lists all of them. A
 successor that cannot see a running reviewer will re-dispatch or merge unreviewed.
 
-**Handover.** When your context is around half used — a compaction/summary event happened, a visible
-token counter is past ~50%, you have run several waves or many hours, or replies feel slow and repetitive
-— or before a long risky stretch: refresh CURRENT STATE, then tell the owner: *"Fresh session should take
-over: `take over as orchestrator from <path>`."* Keep working until a successor contacts you; then comply
-with its retire message (stop dispatching, write any last facts, confirm, go quiet).
+**Context management.** Watch your context all the time: follow §1, delegate, keep CURRENT STATE current
+so nothing lives only in your head. If a context meter is visible use it; otherwise proxies count: a
+compaction/summary event means the threshold has passed; many waves, many hours or replies that feel slow
+and repetitive mean you are close.
 
-**Takeover** (new session): read only the top block → claim ownership → retire the previous orchestrator
-if alive → reconcile ledger against real git state → resolve in-flight subagents → continue. An explicit
+**Handover.** When context reaches the **handoff threshold** (owner's answer, default 60%) — or before a
+long risky stretch you could not finish under it: stop dispatching new work, let in-flight work reach a
+clean boundary (land it or park it with clear state), rewrite CURRENT STATE, and write the handoff for a
+successor named `<your name> v<n+1>` (v2, v3 …). The handoff (the CURRENT STATE block, or a separate
+handoff file) must name: you (so the successor can ask you questions), the **coordinator** if one is
+running, the state file path, peers, approvals, the command-ID block and next free ID if coordinated, and
+the exact start prompt. Give the start prompt to the coordinator if there is one, else to the owner. Keep
+answering the successor's questions; on its retire message stop, confirm, go quiet.
+
+**Takeover** (new session): read only the top block (and the handoff file if separate) → claim ownership →
+introduce yourself to your predecessor (retire it) **and to the coordinator** if one is named → reconcile
+ledger against real git state → resolve in-flight subagents → continue. A **separate handoff file** is
+deleted once you have copied its binding content into the state file (`git rm` + index row in a committed
+temp folder); the **state file itself carries over** and is never deleted on takeover. An explicit
 owner instruction to take over does not wait for a stale heartbeat. Details and the "previous session was
 killed" case: `references/handover-and-watchdog.md`.
 
@@ -209,6 +233,13 @@ authority; never ask a peer to do what the owner denied you. **Meta-orchestrator
 orchestrating several orchestrator sessions): assign features, own merge order and integration, keep an
 index state file pointing to each child's state file, roll up status — never micro-manage their tickets.
 Protocol and message formats: `references/coordination.md`.
+
+**Coordinated mode.** If the owner names a coordinator (`orchestration-coordinator`): report to it, not the
+owner; print minimal or no text in your own session (only answers to what the owner asks you directly and
+one-line status); send owner questions and every owner command to the coordinator (commands carry an ID
+from the block it assigned you, shown in a label line above the code block, never twice); put context % in
+every status; treat only rulings recorded in its rulings log (or said to you directly) as owner authority.
+If the owner tells you something directly, forward it to the coordinator verbatim.
 
 ## 12. Harness gaps
 

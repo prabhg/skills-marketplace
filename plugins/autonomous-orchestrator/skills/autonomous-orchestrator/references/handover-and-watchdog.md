@@ -2,20 +2,32 @@
 
 ## Handover (outgoing orchestrator)
 
-Signals that it is time (any one): a compaction/summary event has happened in this session; a visible
-token/context counter is past ~50%; several waves done or many hours elapsed; you notice yourself
-re-reading things or losing track; a long risky stretch is next (big merge, migration ticket).
+Trigger: context reaches the **handoff threshold** recorded in CURRENT STATE (asked in the first decision
+batch; default **60%**). No meter visible → proxies: a compaction/summary event (threshold passed); several
+waves or many hours; re-reading things or losing track. Also hand over before a long risky stretch you
+could not finish under the threshold.
 
-1. Do not start new dispatches you could not track to completion; in-flight work may continue.
-2. Rewrite CURRENT STATE completely: Next action, In flight (with report paths), Blockers, Approvals.
-   Commit it if the state file lives in a committed temp folder.
-3. Tell the owner (push notification if available): *"Context ~half used. Fresh session should take over:
-   `take over as orchestrator from <abs path>`."*
+1. Start no new dispatches. Bring in-flight work to a **clean boundary**: land what is approved and nearly
+   done, park the rest on its branch with a one-line state.
+2. Rewrite CURRENT STATE completely: Next action, In flight (with report paths), Blockers, Approvals,
+   Peers, Coordinator, command-ID block + next free ID (coordinated mode). Add a **HANDOFF → `<name> v<n+1>`**
+   block at its top: who you are (the successor may message you), the coordinator's name if one runs, what
+   is parked and why, owner items pending. Commit it if the state file lives in a committed temp folder.
+   A separate handoff file is fine for long briefs; give it the temp-doc header with
+   "Delete when: the successor has copied it into the state file".
+3. Send the successor's exact start prompt to the coordinator (coordinated mode) or the owner:
+   *"Context at <n>%. Start `<name> v<n+1>` with: `Use the autonomous-orchestrator skill. Take over as
+   orchestrator from <abs path>. You are "<name> v<n+1>"; report to "<coordinator>"; predecessor
+   "<name>" stays open for questions.`"*
 4. Keep working until a successor contacts you. On its retire message: stop dispatching, finish any state
    write in progress, reply `RETIRED <ts>; in flight: <ids>; last write <ts>`, and go quiet (no more tool
    calls except reading further messages). In-flight subagents keep writing to their report files.
 
 ## Takeover (incoming orchestrator)
+
+Name: the predecessor's name with the next version (`… v2`, `… v3`). Your first messages go to the
+coordinator (if named) — `CLAIMED <state path> at <ts>; ID block <block> next <n>` — and to the
+predecessor (step 3).
 
 Trigger: owner says "take over as orchestrator from <path>" / "resume orchestration from <path>", or you
 found an abandoned state file and the owner agreed. The owner's explicit instruction is the authority —
@@ -41,7 +53,9 @@ do not wait for the heartbeat to go stale.
    - No report, worktree has new commits or changes → old session dead: treat as stuck (watchdog step 3).
      Old session alive and subagent still running: wait one expected-duration window, then decide.
    - No report, no changes → re-dispatch.
-6. Rewrite CURRENT STATE, then continue at Next action.
+6. A separate handoff file: once its binding content is in the state file, delete it (`git rm` + index row
+   in a committed temp folder). Never delete the state file on takeover — it carries over.
+7. Rewrite CURRENT STATE, then continue at Next action.
 
 **Previous orchestrator was killed** (no reply, heartbeat stale): same steps; step 3 is a no-op. Assume
 all its subagents died too unless their worktrees show recent commits (`git log -1 --format=%cr`).

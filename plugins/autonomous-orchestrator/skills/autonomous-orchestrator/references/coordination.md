@@ -32,6 +32,11 @@ BODY: <≤5 lines>
 
 ## Meta-orchestrator mode
 
+Prefer the **orchestration-coordinator** skill when several orchestrator sessions run at once and the
+owner wants one session to talk to (it adds rulings log, numbered owner commands, cross-lane routing and
+handover scheduling). The notes below remain valid for a meta-orchestrator that owns merge order across
+child features.
+
 When the owner asks this session to orchestrate several orchestrator sessions:
 
 - Your state file is an **index**: per child — session identity, feature, its own state file path,

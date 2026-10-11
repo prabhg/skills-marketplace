@@ -38,6 +38,9 @@ Use absolute UTC timestamps (`date -u +%FT%TZ`). Keep lines short; the file must
 ## CURRENT STATE   (rewritten on every change — resume from this block alone)
 - Goal: <one line> · Skill: autonomous-orchestrator
 - Mode: ECONOMY | FULL THROTTLE (since <ts>, per owner "<quote>")
+- Handoff at: <n>% context (owner "<quote>" | default 60%) · now ~<n>% / proxy: <compacted? waves, hours>
+- Coordinator: <session name | none> · rulings log <path | none> · command IDs <block>, next <n> | none
+- Predecessor: <session name | none> (open for questions until retired)
 - Phase: orient | plan | decisions | wave N dispatch | wave N review | wave N merge | finish
 - Tickets: todo a · in_progress b · in_review c · fixing d · approved e · merged f · done g · blocked h · parked i
 - In flight: <agent id/name> | <ticket> | <role> | <tier> | started <ts> | expect <min> | <worktree> @ <branch> | report <path>

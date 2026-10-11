@@ -36,7 +36,7 @@
     },
     {
       "name": "autonomous-orchestrator",
-      "description": "Run long unattended multi-agent builds from one session: lean-context orchestrator, tickets with DoD, cheapest-capable subagents in worktrees, review before every merge, wave merges to dev, green builds, cleanup, one resumable state file with handover/takeover.",
+      "description": "Run long unattended multi-agent builds from one session: lean-context orchestrator, tickets with DoD, Haiku/Sonnet/Opus 5.5+ subagents by risk, review before every merge, wave merges to dev, green builds, cleanup, one resumable state file, owner-set handoff threshold (default 60%) to versioned successors, coordinated mode under orchestration-coordinator.",
       "source": "./plugins/autonomous-orchestrator",
       "category": "productivity"
     },
@@ -44,6 +44,12 @@
       "name": "account-handoff",
       "description": "Carry a project across Claude account logins on one machine: before switching, capture work in flight, live sessions, git state and everything tied to the account into a local handoff; after switching, verify, re-prime and resume. Any number of accounts, repeated round trips.",
       "source": "./plugins/account-handoff",
+      "category": "productivity"
+    },
+    {
+      "name": "orchestration-coordinator",
+      "description": "One owner-facing coordinator over several autonomous-orchestrator sessions: disjoint repo lanes, owner rulings recorded verbatim, batched owner questions, cross-lane bug and contract routing, every owner command numbered and printed once, context-threshold handovers, minimal text in every session.",
+      "source": "./plugins/orchestration-coordinator",
       "category": "productivity"
     }
   ]

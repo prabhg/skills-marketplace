@@ -1,0 +1,8 @@
+{
+  "name": "orchestration-coordinator",
+  "version": "0.1.0",
+  "description": "One owner-facing coordinator session over several autonomous-orchestrator sessions: disjoint lanes, owner rulings recorded verbatim, batched owner questions, cross-lane bug routing, numbered owner commands printed once, context-threshold handovers, minimal text everywhere.",
+  "author": {
+    "name": "Prabhh Ghumn"
+  }
+}

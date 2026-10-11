@@ -1,7 +1,7 @@
 {
   "name": "autonomous-orchestrator",
-  "version": "0.1.0",
-  "description": "Run long unattended multi-agent builds from one session: lean-context orchestrator, tickets with DoD, cheapest-capable subagents in worktrees, review before every merge, wave merges to dev, green builds, cleanup, one resumable state file with handover/takeover.",
+  "version": "0.2.0",
+  "description": "Run long unattended multi-agent builds from one session: lean-context orchestrator, tickets with DoD, Haiku/Sonnet/Opus 5.5+ subagents by risk, review before every merge, wave merges to dev, green builds, cleanup, one resumable state file, owner-set handoff threshold (default 60%) to versioned successors, coordinated mode under orchestration-coordinator.",
   "author": {
     "name": "Prabhh Ghumn"
   }
