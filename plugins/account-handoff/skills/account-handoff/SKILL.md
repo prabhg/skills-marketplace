@@ -47,9 +47,13 @@ Templates for all of them: [references/templates.md](references/templates.md).
 
 ## Decide the phase
 
-1. Identify the current account: the user's account email from session context is the label. If the session
-   does not expose one, ask once for a short label ("personal", "work") and reuse the labels already in
-   `accounts.md`.
+1. Identify the current account: the user's account email from session context is the label. Cross-check it
+   against the login on disk, reading only the email field:
+   `python3 -c "import json,os;print(json.load(open(os.path.expanduser('~/.claude.json'))).get('oauthAccount',{}).get('emailAddress'))"`.
+   Session context is fixed when a session starts, so a session opened before the switch keeps the old email.
+   If the two disagree, trust neither: ask the user to quit and reopen the app and run this skill in a new
+   session. If the session exposes no email and the file has none, ask once for a short label ("personal",
+   "work") and reuse the labels already in `accounts.md`.
 2. Read `HANDOFF.md` if it exists (its header has `status`, `from`, `written`).
 
 | Found | Phase |
@@ -63,6 +67,12 @@ The user can force a phase by saying "depart" (also "update", "refresh", "redo t
 "status" (status = print the table above with what was found, change nothing). A handoff is only ever
 consumed by a different account than the one that wrote it; if the labels match, or the user says they
 have not switched yet, it is a departure no matter what else the files suggest.
+
+**Forced "arrive" while both sources show the writer's email:** do not consume and do not treat it as a
+departure either. The machine is still logged in as the writer, usually because the app switched its window
+login but the session (or the app) was not restarted. Change nothing; tell the user: quit the app fully, reopen
+it, check the account, start a new session in the same folder, run this skill again. Consuming the handoff
+here hides it from the real next account.
 
 **Depart again** means a full fresh pass of Phase 1, with one difference: read the existing `HANDOFF.md`
 first and carry forward what can no longer be collected, because its source is gone: state blobs from
