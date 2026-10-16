@@ -1,0 +1,18 @@
+{
+  "source": "function metrics, non-production env, last 30 days",
+  "functions": [
+    { "name": "taskboard-api-dev-me", "invocations": 1840, "errors": 3 },
+    { "name": "taskboard-api-dev-myProjects", "invocations": 0, "logGroup": false },
+    { "name": "taskboard-api-dev-projectTasks", "invocations": 412, "errors": 0 },
+    { "name": "taskboard-api-dev-projectStats", "invocations": 0, "logGroup": false },
+    { "name": "taskboard-api-dev-memberProfiles", "invocations": 0, "logGroup": false },
+    { "name": "taskboard-api-dev-completeOnboarding", "invocations": 22, "errors": 0 },
+    { "name": "taskboard-api-dev-createProject", "invocations": 0, "logGroup": false },
+    { "name": "taskboard-api-dev-addProjectMember", "invocations": 0, "logGroup": false },
+    { "name": "taskboard-api-dev-createTask", "invocations": 0, "logGroup": false },
+    { "name": "taskboard-api-dev-moveTask", "invocations": 0, "logGroup": false },
+    { "name": "taskboard-api-dev-assignTask", "invocations": 0, "logGroup": false },
+    { "name": "taskboard-api-dev-devSetPlan", "invocations": 5, "errors": 5 },
+    { "name": "taskboard-notify-dev-taskEvents", "invocations": 0, "logGroup": false }
+  ]
+}

@@ -51,6 +51,12 @@
       "description": "One owner-facing coordinator over several autonomous-orchestrator sessions: disjoint repo lanes, owner rulings recorded verbatim, batched owner questions, cross-lane bug and contract routing, every owner command numbered and printed once, context-threshold handovers, minimal text in every session.",
       "source": "./plugins/orchestration-coordinator",
       "category": "productivity"
+    },
+    {
+      "name": "mock-first-frontend-release",
+      "description": "Front-end-first delivery for web, React Native and native mobile: build the app on a typed mock API layer, run tester feedback rounds until the design settles, derive the backend contract and a PRD from the settled mocks, then swap mocks for live calls in probed waves with a live mock registry.",
+      "source": "./plugins/mock-first-frontend-release",
+      "category": "productivity"
     }
   ]
 }

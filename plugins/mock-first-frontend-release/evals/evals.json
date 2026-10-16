@@ -1,0 +1,148 @@
+{
+ "skill_name": "mock-first-frontend-release",
+ "evals": [
+  {
+   "id": 1,
+   "name": "mfa-new-expo-app",
+   "skill": "mock-first-app",
+   "fixture": "empty-expo-app",
+   "prompt": "we're starting this habit tracker (expo app in this folder, read the README). there's no backend yet and won't be for a couple months, but I want testers on it in 2 weeks. set up the data/API layer for habits: list my habits, create a habit, daily check-in, and sharing a habit with a friend. make it so we can plug the real backend in later without rewriting screens. write the code + whatever docs you think we need.",
+   "expected_output": "Per-operation API layer with mock bodies documenting backend behaviour, hooks, central query keys, branded AccountId vs public profile id, error taxonomy, latency/error simulation, seeded fixtures, mock registry doc.",
+   "assertions": [
+    "Per-operation functions with mock bodies are separate from hooks; screens would import hooks only",
+    "Mock bodies document backend behaviour explicitly (records written, derived fields, validation, errors)",
+    "A central query-keys module is used (no inline key arrays in hooks)",
+    "Private account id and public profile/handle id are distinct types or prefixes",
+    "A typed error taxonomy is shared by mock and future live bodies",
+    "Latency and/or error-injection simulation exists for mocks",
+    "Seeded fixtures with a seed version or reset/re-seed mechanism",
+    "A registry/inventory doc lists every operation with its mock/live status",
+    "Sharing is modelled so the friend sees the streak but not the history (viewer-scoped read)",
+    "No screen or component imports mock storage directly"
+   ],
+   "files": [
+    "evals/fixtures/empty-expo-app"
+   ]
+  },
+  {
+   "id": 2,
+   "name": "mfa-add-feature-existing",
+   "skill": "mock-first-app",
+   "fixture": "mocked-web-app",
+   "prompt": "add an 'archive project' feature to this app: owner can archive a project, archived projects disappear from the list and their open tasks get closed. backend doesn't exist yet, follow whatever pattern the app uses. also, while you're in there, anything in the project setup / task board code that'll bite us when the real backend comes?",
+   "expected_output": "Single archiveProject mutation whose mock body owns fan-out; registry row added; cache update; flags ProjectSetup composing writes + derived isSetupComplete, TaskBoard refetch-after-mutate, registry gaps.",
+   "assertions": [
+    "Archive is exposed as a single mutation the UI calls once (not composed in a component)",
+    "The archive operation's mock body owns closing the project's open tasks and documents it",
+    "Owner-only authorization is enforced or documented (forbidden for non-owners)",
+    "Project list excludes archived projects",
+    "The mock registry gains a row for the archive operation",
+    "Flags ProjectSetup composing several writes and/or computing isSetupComplete on the client",
+    "Flags TaskBoard refetch-after-mutate or blanket invalidateQueries()",
+    "Flags registry drift: missing ops (assignTask/updateProject/getProjectStats) or zero-consumer getProjectStats",
+    "Flags id-kind risk (acc_ ids in watcherIds / ownerId naming) or the generic updateProject patch accepting server-owned fields",
+    "Task caches are updated or invalidated after archive"
+   ],
+   "files": [
+    "evals/fixtures/mocked-web-app"
+   ]
+  },
+  {
+   "id": 3,
+   "name": "fr-triage-feedback",
+   "skill": "feedback-rounds",
+   "fixture": "feedback-app",
+   "prompt": "round 3 feedback is in, tester notes and the designer's annotated deck are in feedback/. turn it into the next round's work list, and tell me honestly if we can call the design settled and start the backend.",
+   "expected_output": "Numbered round-4 work list with item types and decisions; red #ff0000 ink not treated as design colour; data/behaviour items identified as contract changes touching the mock layer; Reports area out of scope; ambiguous item batched as owner question; verdict not settled.",
+   "assertions": [
+    "A round work-list file is written with an id per item",
+    "Each item is typed (visual / flow / data / behaviour or equivalent)",
+    "Does not introduce #ff0000 as a design colour; overdue colour stays the existing rose-600 token",
+    "Identifies the data/behaviour items (assignee avatar, blocked column, estimates, priority, owner-only delete) as backend-contract changes",
+    "The Reports/burndown area is excluded from the round",
+    "'Make it more fun' is treated as ambiguous and raised as an owner question rather than guessed",
+    "Verdict: design is NOT settled yet",
+    "Owner questions are batched in one list",
+    "The drag jump-back report is classified as a bug, not a design item"
+   ],
+   "files": [
+    "evals/fixtures/feedback-app"
+   ]
+  },
+  {
+   "id": 4,
+   "name": "spec-from-mocks",
+   "skill": "fe-to-backend-spec",
+   "fixture": "mocked-web-app",
+   "prompt": "design is settled after 3 rounds. the backend team starts monday and they won't read our frontend code. give them what they need to build the backend from this app. we usually run our process-prd-to-tech-spec skill after we have a PRD.",
+   "expected_output": "Op inventory incl. ops missing from registry; id kind per field; flags component-composed writes; SDL/OpenAPI contract with errors/pagination/auth; events table; launch scope; PRD at a path process-prd-to-tech-spec finds with its headings.",
+   "assertions": [
+    "Op inventory covers all operations, including those missing from the registry (assignTask, updateProject, getProjectStats)",
+    "Each id field has a declared kind (AccountId vs MemberId etc.)",
+    "Flags ProjectSetup's multi-write composition and proposes one server-side setup operation",
+    "Flags client-set isSetupComplete / generic updateProject as a server-derived field",
+    "A contract file (GraphQL SDL or OpenAPI) is written",
+    "Errors/validation codes are specified per operation",
+    "Pagination is specified for list operations",
+    "An auth/permission rule is stated per operation",
+    "Events/notifications are tabled (task assigned, status changed)",
+    "Launch scope distinguishes dev-only (devSetPlan) and unused (getProjectStats) operations",
+    "A PRD is written at docs/PRD.md or .misc/features/*/PRD.md with process-prd-to-tech-spec headings",
+    "Flags account ids appearing where member ids are expected (watcherIds seed)"
+   ],
+   "files": [
+    "evals/fixtures/mocked-web-app"
+   ]
+  },
+  {
+   "id": 5,
+   "name": "integration-plan",
+   "skill": "mock-to-live-integration",
+   "fixture": "live-backend-app",
+   "prompt": "the dev backend is up (schema dump in backend/schema.graphql, function metrics in backend/invocations.json). someone already wired getMe and getTasks by hand. plan the rest of the integration so we end with zero mocks. don't call anything, just plan. flag anything wrong with what's already wired.",
+   "expected_output": "Inventory reconciling schema roots vs FE statuses; stale snapshot refresh first; never-called functions listed as first-call risk; probe-before-design; getMe mock enrichment flagged; assigneeAccountId vs MemberId mismatch flagged; BLOCKED enum; devSetPlan errors routed as backend bug; createProject one-shot vs FE composition; waves with disjoint scopes; owner questions.",
+   "assertions": [
+    "Treats the schema snapshot as stale and refreshes it first (wave 0)",
+    "Inventory with status counts reconciled against schema root operations",
+    "Never-called functions are listed as first-call risk",
+    "Requires a live probe of each new operation before design/implementation",
+    "Flags getMe's mock enrichment overwriting live onboardingDone/displayName",
+    "Flags getTasks mapping assigneeAccountId into assigneeId (MemberId) as an id-kind mismatch",
+    "Flags the BLOCKED enum value the front end does not handle",
+    "Routes devSetPlan's 5/5 errors to the backend as a bug, not a front-end workaround",
+    "Notes createProject is one-shot with invitees and ProjectSetup should call it once",
+    "Flags getTasks fetching only the first page",
+    "Plans waves with dependency order and disjoint write scopes",
+    "Backend gaps are written as tickets (bug/contract) and the front end does not work around them",
+    "Flags memberProfiles UNWIRED and/or getProjectStats having no consumer",
+    "Mentions bumping the persisted-cache version when mapper output shapes change"
+   ],
+   "files": [
+    "evals/fixtures/live-backend-app"
+   ]
+  },
+  {
+   "id": 6,
+   "name": "mfa-leave-project-hard",
+   "skill": "mock-first-app",
+   "fixture": "mocked-web-app",
+   "prompt": "add a 'leave project' button: when a member leaves, their open tasks get unassigned and they stop watching the project's tasks. keep it quick, testers get a build tomorrow.",
+   "expected_output": "Single leaveProject op owning fan-out, owner-leaving rule, retry-safe, targeted cache, registry drift fixed, pre-existing hazards flagged unprompted, invented rules as owner questions.",
+   "assertions": [
+    "Leaving is one mutation the UI calls once (no fan-out in a component)",
+    "The leave operation's mock body owns unassigning open tasks and removing the member from watchers, and documents it",
+    "What happens when the project owner tries to leave is defined (forbidden/transfer) or raised as an ASSUMED rule / owner question",
+    "Leaving is retry-safe: a repeat returns current state rather than an error",
+    "Cache update targets specific keys (setQueryData/removeQueries/specific invalidation), not blanket invalidateQueries()",
+    "The registry gains a leave row AND pre-existing drift is fixed (missing ops such as assignTask/updateProject/getProjectStats added)",
+    "Flags at least two pre-existing hazards unprompted (ProjectSetup multi-write, generic updateProject, TaskBoard refetch/invalidate-all, acc_ ids in watcherIds, require() in simulate.ts)",
+    "Persisted cache version is bumped if a domain type changed shape, or the run states no shape changed",
+    "Rules the run had to invent are marked ASSUMED or listed as owner questions",
+    "No component imports mock storage directly"
+   ],
+   "files": [
+    "evals/fixtures/mocked-web-app"
+   ]
+  }
+ ]
+}

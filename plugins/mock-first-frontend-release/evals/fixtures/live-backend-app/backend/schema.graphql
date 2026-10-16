@@ -1,0 +1,28 @@
+# Introspected from the "taskboard-api-dev" GraphQL API (non-production) on 2026-09-01.
+# NOTE: backend repos have had commits since then (task watchers, project archive).
+type Query {
+  me: Me!
+  myProjects(cursor: String): ProjectPage!
+  projectTasks(projectId: ID!, cursor: String): TaskPage!
+  projectStats(projectId: ID!): ProjectStats!
+  memberProfiles(memberIds: [ID!]!): [MemberCard!]!
+  health: String!
+}
+type Mutation {
+  completeOnboarding(displayName: String!): Me!
+  createProject(name: String!, inviteeMemberIds: [ID!]): Project!   # one-shot setup: creates + invites + computes setupComplete
+  addProjectMember(projectId: ID!, memberId: ID!): Project!
+  createTask(projectId: ID!, title: String!, assigneeAccountId: ID, dueOn: String): Task!
+  moveTask(taskId: ID!, status: TaskStatus!): Task!
+  assignTask(taskId: ID!, assigneeAccountId: ID): Task!
+  devSetPlan(plan: Plan!): Me!
+}
+enum TaskStatus { TODO DOING DONE BLOCKED }
+enum Plan { FREE TEAM }
+type Me { accountId: ID! memberId: ID! displayName: String! email: String! plan: Plan! onboardingDone: Boolean! }
+type MemberCard { memberId: ID! displayName: String! avatarUrl: String }
+type Project { id: ID! name: String! ownerMemberId: ID! memberIds: [ID!]! setupComplete: Boolean! }
+type ProjectPage { items: [Project!]! nextCursor: String }
+type Task { id: ID! projectId: ID! title: String! status: TaskStatus! assigneeAccountId: ID dueOn: String createdAt: String! }
+type TaskPage { items: [Task!]! nextCursor: String }
+type ProjectStats { projectId: ID! open: Int! done: Int! overdue: Int! }
