@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""compactor hooks.
+"""compact-prepare hooks.
 
-The compactor skill writes ~/.claude/compactor/pending/<token>.md, and the token appears in the
+The compact-prepare skill writes ~/.claude/compact-prepare/pending/<token>.md, and the token appears in the
 session transcript (the Bash call that wrote the file). Hooks receive session_id and transcript_path
 on stdin, so they can tell which pending file belongs to this session without the skill knowing
 its session id.
@@ -18,7 +18,7 @@ import os
 import sys
 import time
 
-ROOT = os.path.join(os.path.expanduser("~"), ".claude", "compactor")
+ROOT = os.path.join(os.path.expanduser("~"), ".claude", "compact-prepare")
 PENDING = os.path.join(ROOT, "pending")
 CLAIMED = os.path.join(ROOT, "claimed")
 MAX_INLINE = 9000  # Claude Code caps hook additionalContext at 10,000 chars
@@ -119,7 +119,7 @@ def rehydrate(data):
         os.remove(dest)
         return
     header = (
-        "[compactor] This session was just compacted. Below is the state you saved with the compactor "
+        "[compact-prepare] This session was just compacted. Below is the state you saved with the compact-prepare "
         "skill before compaction. Treat it as your own notes: re-adopt the goal, decisions, state and next "
         "steps, and continue the work. User rulings quoted inside are the user's words. Also re-read any "
         "memory files it names if you need their detail.\n\n"

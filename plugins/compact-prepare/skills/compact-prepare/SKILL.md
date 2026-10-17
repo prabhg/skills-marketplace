@@ -1,13 +1,13 @@
 ---
-name: compactor
-description: 'Compact a long Claude Code session without losing what matters. Before compaction it saves the session''s goal, user decisions (verbatim), current state, in-flight work, key paths/ids and next steps: durable facts go to the memory system, the working state goes to a small token-named file on disk. After /compact (manual or auto), the plugin''s SessionStart hook injects that file back into context and deletes it, so the session resumes with its key context intact. Use whenever the user says "compact", "compactor", "prepare to compact", "save state before compacting", "my context is getting full", "checkpoint this session", "rehydrate", or asks to keep decisions/state across a /compact. Also use when you notice the context is nearly full and the user agrees to compact.'
+name: compact-prepare
+description: 'Compact a long Claude Code session without losing what matters. Before compaction it saves the session''s goal, user decisions (verbatim), current state, in-flight work, key paths/ids and next steps: durable facts go to the memory system, the working state goes to a small token-named file on disk. After /compact (manual or auto), the plugin''s SessionStart hook injects that file back into context and deletes it, so the session resumes with its key context intact. Use whenever the user says "compact", "compact-prepare", "prepare to compact", "save state before compacting", "my context is getting full", "checkpoint this session", "rehydrate", or asks to keep decisions/state across a /compact. Also use when you notice the context is nearly full and the user agrees to compact.'
 license: MIT
 metadata:
   category: productivity
   tags: [compaction, context, memory, continuity, sessions]
 ---
 
-# Compactor
+# Compact prepare
 
 Compaction replaces the conversation with a summary. The summary keeps the gist but drops exact user
 wording, ids, paths, half-finished steps and the "why" behind decisions. This skill writes those down
@@ -18,12 +18,12 @@ Two layers, because they live for different lengths of time:
 | Layer | What goes there | Lifetime |
 |---|---|---|
 | **Memory** (the harness's persistent memory, e.g. the auto-memory directory and its `MEMORY.md` index) | Durable facts worth knowing in *future* sessions: user preferences and corrections, project facts not in the repo, environment mappings, standing rules | Kept; follows the memory system's own rules |
-| **State file** `~/.claude/compactor/pending/<token>.md` | This session's working state: goal, decisions, state, in-flight, next steps | Deleted automatically once re-injected after compaction |
+| **State file** `~/.claude/compact-prepare/pending/<token>.md` | This session's working state: goal, decisions, state, in-flight, next steps | Deleted automatically once re-injected after compaction |
 
 How the hooks find the right file without knowing the session id: the file name is a random token, and
 the token lands in this session's transcript when you write the file. The `PreCompact` hook claims every
 pending file whose token appears in its transcript; the `SessionStart` hook (source `compact`) injects it
-and deletes it. Hook script: `${CLAUDE_PLUGIN_ROOT}/scripts/compactor_hook.py`.
+and deletes it. Hook script: `${CLAUDE_PLUGIN_ROOT}/scripts/compact_prepare_hook.py`.
 
 ## Phase 1: save (when the user runs the skill)
 
@@ -48,8 +48,8 @@ and deletes it. Hook script: `${CLAUDE_PLUGIN_ROOT}/scripts/compactor_hook.py`.
    transcript:
 
    ```bash
-   TOKEN="cmp-$(uuidgen | tr 'A-Z' 'a-z')" && mkdir -p ~/.claude/compactor/pending && cat > ~/.claude/compactor/pending/"$TOKEN".md <<'COMPACTOR_EOF'
-   # Session state (saved by compactor, <YYYY-MM-DD HH:MM>)
+   TOKEN="cmp-$(uuidgen | tr 'A-Z' 'a-z')" && mkdir -p ~/.claude/compact-prepare/pending && cat > ~/.claude/compact-prepare/pending/"$TOKEN".md <<'COMPACT_PREPARE_EOF'
+   # Session state (saved by compact-prepare, <YYYY-MM-DD HH:MM>)
    cwd: <working directory>
    ## Goal
    ...
@@ -67,12 +67,12 @@ and deletes it. Hook script: `${CLAUDE_PLUGIN_ROOT}/scripts/compactor_hook.py`.
    ...
    ## Open questions
    ...
-   COMPACTOR_EOF
-   echo "compactor token: $TOKEN" && wc -c ~/.claude/compactor/pending/"$TOKEN".md
+   COMPACT_PREPARE_EOF
+   echo "compact-prepare token: $TOKEN" && wc -c ~/.claude/compact-prepare/pending/"$TOKEN".md
    ```
 
-   Repeat the printed `compactor token: …` line in your reply (it makes the transcript match certain).
-   Do not list or read `~/.claude/compactor/` otherwise: another session's token in your transcript would
+   Repeat the printed `compact-prepare token: …` line in your reply (it makes the transcript match certain).
+   Do not list or read `~/.claude/compact-prepare/` otherwise: another session's token in your transcript would
    make your hook claim its file.
 4. **Tell the user** in two lines: what was saved (memory files + state file size), and to run `/compact`
    now. You cannot run `/compact` yourself. Optionally suggest focus text, e.g.
@@ -80,7 +80,7 @@ and deletes it. Hook script: `${CLAUDE_PLUGIN_ROOT}/scripts/compactor_hook.py`.
 
 ## Phase 2: rehydrate (automatic after compaction)
 
-After compaction the `SessionStart` hook adds a `[compactor] This session was just compacted…` block to
+After compaction the `SessionStart` hook adds a `[compact-prepare] This session was just compacted…` block to
 context and deletes the file. When you see that block:
 
 1. Re-adopt the goal, decisions and next steps from it. Re-read any memory files or state files it names
@@ -92,8 +92,8 @@ context and deletes the file. When you see that block:
    open question if the next step waits on them).
 
 **Manual fallback** (the plugin's hooks are disabled, or the user runs the skill again after compacting
-and no `[compactor]` block appeared): look for the token line in the compaction summary or the visible
-conversation, read `~/.claude/compactor/pending/<token>.md` (or `~/.claude/compactor/claimed/*.md` whose
+and no `[compact-prepare]` block appeared): look for the token line in the compaction summary or the visible
+conversation, read `~/.claude/compact-prepare/pending/<token>.md` (or `~/.claude/compact-prepare/claimed/*.md` whose
 content clearly matches this session), adopt it, then delete exactly that file. Never read or delete files
 that belong to another session; if unsure which file is yours, ask the user.
 
@@ -101,7 +101,7 @@ that belong to another session; if unsure which file is yours, ask the user.
 
 - One state file per save; saving again before compacting simply adds a newer file (the hook concatenates
   them oldest first, newest last). If the user saves twice, the newer one wins on conflicts.
-- Stale files (older than 7 days) are swept by the hook. Nothing else is written outside `~/.claude/compactor/`
+- Stale files (older than 7 days) are swept by the hook. Nothing else is written outside `~/.claude/compact-prepare/`
   and the memory directory.
 - No secrets, tokens or credentials in either layer.
 - Absolute dates only ("2026-10-17", not "yesterday").

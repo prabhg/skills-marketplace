@@ -59,9 +59,9 @@
       "category": "productivity"
     },
     {
-      "name": "compactor",
+      "name": "compact-prepare",
       "description": "Compact a long session without losing it: save goal, verbatim decisions, state and next steps (durable facts to memory, working state to a token-named file), then a SessionStart(compact) hook re-injects the file after /compact and deletes it.",
-      "source": "./plugins/compactor",
+      "source": "./plugins/compact-prepare",
       "category": "productivity"
     }
   ]
