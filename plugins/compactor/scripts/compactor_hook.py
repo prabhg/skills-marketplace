@@ -94,14 +94,20 @@ def emit(context):
     }))
 
 
+def has_pending():
+    return os.path.isdir(PENDING) and any(n.endswith(".md") for n in os.listdir(PENDING))
+
+
 def precompact(data):
+    if not has_pending():  # skip reading a multi-MB transcript on every unrelated compaction
+        return
     claim(data.get("session_id", ""), transcript_text(data.get("transcript_path", "")))
 
 
 def rehydrate(data):
     session_id = data.get("session_id", "")
     dest = os.path.join(CLAIMED, safe_id(session_id) + ".md") if session_id else None
-    if not dest or not os.path.exists(dest):
+    if (not dest or not os.path.exists(dest)) and has_pending():
         # PreCompact did not run (or ran in an older plugin version): claim now.
         dest = claim(session_id, transcript_text(data.get("transcript_path", "")))
     sweep_stale()

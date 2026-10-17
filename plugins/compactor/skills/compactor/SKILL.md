@@ -86,7 +86,8 @@ context and deletes the file. When you see that block:
 1. Re-adopt the goal, decisions and next steps from it. Re-read any memory files or state files it names
    if you need their detail.
 2. If the block says the state was too large to inline: read the named file fully with the Read tool, then
-   delete it with the `rm -f` command it gives.
+   delete it with the `rm -f` command it gives (a destructive-command guard hook may ask the user to
+   confirm; if it is declined, leave the file: the hook sweeps it after 7 days).
 3. Tell the user in one line that the session was rehydrated, and continue with the next step (or ask the
    open question if the next step waits on them).
 
