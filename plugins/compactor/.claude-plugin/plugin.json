@@ -1,0 +1,8 @@
+{
+  "name": "compactor",
+  "version": "0.1.0",
+  "description": "Compact a long session without losing it: save goal, decisions, state and next steps (durable facts to memory, the rest to a token-named state file), then after /compact a hook re-injects the state file into context and deletes it.",
+  "author": {
+    "name": "Prabhh Ghumn"
+  }
+}

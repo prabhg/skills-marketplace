@@ -1,0 +1,28 @@
+{
+  "description": "compactor: claim the session's state file before compaction, re-inject it after compaction and delete it.",
+  "hooks": {
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/compactor_hook.py\" precompact",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/compactor_hook.py\" rehydrate",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

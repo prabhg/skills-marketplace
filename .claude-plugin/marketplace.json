@@ -57,6 +57,12 @@
       "description": "Front-end-first delivery for web, React Native and native mobile: build the app on a typed mock API layer, run tester feedback rounds until the design settles, derive the backend contract and a PRD from the settled mocks, then swap mocks for live calls in probed waves with a live mock registry.",
       "source": "./plugins/mock-first-frontend-release",
       "category": "productivity"
+    },
+    {
+      "name": "compactor",
+      "description": "Compact a long session without losing it: save goal, verbatim decisions, state and next steps (durable facts to memory, working state to a token-named file), then a SessionStart(compact) hook re-injects the file after /compact and deletes it.",
+      "source": "./plugins/compactor",
+      "category": "productivity"
     }
   ]
 }
