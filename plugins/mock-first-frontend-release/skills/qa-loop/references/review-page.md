@@ -25,4 +25,4 @@ Check it in a browser before handing it over: card count equals register rows, s
 - Short greeting and thanks; then a block for everyone, then one block per tester headed with an `@name` placeholder; numbered lines, one question each, with the case id in brackets.
 - No markdown tables, no `#` headings, no internal ids except case ids testers know.
 - End with "things we already have answers for (no reply needed)" as bullets, and a thank-you.
-- Save it next to the review page and paste it into your reply so the owner can copy it straight away.
+- Save it as a `.md` file next to the review page and give the owner the path; do not paste the text into replies (the owner copies from the file).
