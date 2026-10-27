@@ -12,7 +12,7 @@ claude plugin install mock-first-frontend-release@prabhg-plugins
 mock-first-app ──► feedback-rounds ──► fe-to-backend-spec ──► (backend build) ──► mock-to-live-integration
    (phase 1)          (phase 2, loop)       (phase 3)          process-prd-to-tech-spec      (phase 4)
 
-qa-loop: test plan → tester PDFs → extract → validate → questions → fix plan → release → next plan
+qa-loop: test plan → tester PDFs → extract → validate → questions + owner review → fix plan → release → next plan
          (any phase once testers run preview builds)
 ```
 
