@@ -48,7 +48,7 @@ Rules that keep validation honest:
 
 ## 4. Questions back
 
-`references/questions-template.md`: grouped per tester, plain language, no internal ids in the sentences (ids in brackets for you), one question per unclear item, plus "answers we already have" for INVALID items so testers learn without replying. Ask every tester for build id, device and OS when missing.
+`references/questions-template.md`: grouped per tester, plain language, no ids at all in what testers read (no register ids, no case ids: name the screen or action instead; ids stay in the owner's copy), one question per unclear item, plus "answers we already have" for INVALID items so testers learn without replying. Ask every tester for build id, device and OS when missing.
 
 ## 5. Owner review page
 

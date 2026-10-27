@@ -14,6 +14,8 @@
 ## For <tester A>
 1. **<Short topic> (<CASE-ID>).** <What we need to know, as a question they can answer from memory.> (F-nn)
 
+(Ids are for the owner's copy only; the chat-ready text sent to testers drops them.)
+
 ## For <tester B>
 …
 
