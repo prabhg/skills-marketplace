@@ -1,6 +1,6 @@
 ---
 name: qa-loop
-description: 'Run the QA loop on an app testers use from preview builds, where feedback comes back against a test plan (case ids, Pass/Fail marks, notes): write the per-screen test plan testers follow (a private page they print or save as PDF), extract their filled-in feedback (handwritten or typed PDF annotations, screenshots, chat notes), validate each item against the code and a simulator, emulator or browser, send plain-language questions back, plan the accepted fixes in reviewed waves, and write the next test plan after release. Use it whenever the user says "write a test plan / test cases for QA", "testers filled in the test plan", "here is QA feedback", "review the tester PDFs", "validate the test-plan results", "what should we send back to the testers", "plan the QA fixes", "next test plan", or hands over annotated test-plan PDFs, even without the word QA. For design rounds on a mocked front end use feedback-rounds.'
+description: 'Run the QA loop on an app testers use from preview builds, where feedback comes back against a test plan (case ids, Pass/Fail marks, notes): write the per-screen test plan testers follow (a private page they print or save as PDF), extract their filled-in feedback (handwritten or typed PDF annotations, screenshots, chat notes), validate each item against the code and a simulator, emulator or browser, send plain-language questions back, plan the accepted fixes in reviewed waves, and write the next test plan after release. Use it whenever the user says "write a test plan / test cases for QA", "testers filled in the test plan", "here is QA feedback", "review the tester PDFs", "validate the test-plan results", "what should we send back to the testers", "summarize the feedback for my review meeting", "plan the QA fixes", "next test plan", or hands over annotated test-plan PDFs, even without the word QA. For design rounds on a mocked front end use feedback-rounds.'
 ---
 
 # QA loop
@@ -50,17 +50,26 @@ Rules that keep validation honest:
 
 `references/questions-template.md`: grouped per tester, plain language, no internal ids in the sentences (ids in brackets for you), one question per unclear item, plus "answers we already have" for INVALID items so testers learn without replying. Ask every tester for build id, device and OS when missing.
 
-## 5. Fix plan
+## 5. Owner review page
+
+Right after validation (before or alongside the fix plan), give the owner two temporary files for their review meeting, per `references/review-page.md`:
+
+- **Review page**: one self-contained HTML file (no external scripts, light and dark theme, screenshots inlined) in a local, untracked place: at a glance (counts, top issues), what worked well (cases passed, by area, from the testers' marks), issues by area (id, tester, verbatim quote, verdict, one-line "what we'll do", screenshot), decisions the owner must make, questions going to the testers, test-plan fixes. Generate it from the register and the extracts with a small script, so it can be regenerated when answers come back.
+- **Chat-ready questions**: the tester questions as plain text for a chat app (no tables or markdown headings; short numbered lines; grouped per tester with @name placeholders; friendly; the "answers we already have" list at the end). Paste it in your reply too.
+
+Both are temporary: delete them after the meeting and once the answers are in the register.
+
+## 6. Fix plan
 
 For every VALID item and owner feature: root cause (`file:line` at the commit you name), approach, files, tests, risk, effort, whether it needs a native build or only an OTA/web deploy, and backend work. Backend gaps become **contract asks** (repo, operation, input, guard, result) routed to whoever owns that backend. Group into waves: no-code steps first (owner: config, product rulings; you: the next test plan's fixes), then independent small fixes in parallel (disjoint files; one writer at a time for shared files such as locale files), then larger items, then contract asks. Cut anything speculative.
 
 Get an **independent review** from the strongest model at high effort (give it the plan, the register, the validation notes and the code; ask for APPROVE or CHANGES with evidence). Apply CHANGES and re-review until APPROVE.
 
-## 6. Hand off
+## 7. Hand off
 
-Send the owner (or the coordinating session) counts per class and the three doc paths. The owner sends the questions and starts the implementer. When answers come back, update the register (ASK → VALID / INVALID / DECIDE) and the plan, and re-review only what changed.
+Send the owner (or the coordinating session) counts per class, the three doc paths and the two review files from §5. The owner sends the questions and starts the implementer. When answers come back, update the register (ASK → VALID / INVALID / DECIDE) and the plan, and re-review only what changed.
 
-## 7. Release and the next plan
+## 8. Release and the next plan
 
 After the fixes ship in a preview build or OTA: write the next test plan from this cycle: re-test every VALID item ("Fixed in this build: re-test", with the case ids), rewrite cases testers did not understand, remove or reword cases that tested mock-era behaviour, add cases for new features, and keep the build id instructions. Then the loop starts again.
 
