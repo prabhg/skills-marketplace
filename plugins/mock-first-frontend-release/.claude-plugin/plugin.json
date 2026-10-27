@@ -1,7 +1,7 @@
 {
   "name": "mock-first-frontend-release",
-  "version": "0.1.0",
-  "description": "Front-end-first product delivery: build a fully working app on a typed mock API layer, run tester feedback rounds until the design settles, derive the backend contract from the settled mocks, then swap mocks for live operations wave by wave with probes, gap routing and a live mock registry. Web, React Native and native mobile.",
+  "version": "0.2.0",
+  "description": "Front-end-first product delivery: build a fully working app on a typed mock API layer, run tester feedback rounds until the design settles, derive the backend contract from the settled mocks, then swap mocks for live operations wave by wave with probes, gap routing and a live mock registry. Web, React Native and native mobile. Also a QA loop: per-screen test plans for testers, feedback extraction from annotated PDFs, validation, tester questions and fix plans.",
   "author": {
     "name": "Prabhh Ghumn"
   }
