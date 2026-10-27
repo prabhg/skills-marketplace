@@ -11,8 +11,8 @@ Two temporary files for the owner's review meeting. Plain language: the reader i
 
 Sections, in this order:
 
-1. **At a glance**: cases in the plan, passed by both / by one tester, issue rows, then one tile per verdict in plain words (VALID = we fix, INVALID = not a bug, CONFIG = setup, ASK = question, DECIDE = decision; duplicates are merged into the row they duplicate); the top 5 issues in one line each.
-2. **What worked well**: every case with no issue row and no Fail mark, grouped by area; mark "passed by one, other skipped" differently from "passed by both". One line of highlights the testers praised.
+1. **At a glance**: cases in the plan, passed by every tester / by some, issue rows, then one tile per verdict in plain words (VALID = we fix, INVALID = not a bug, CONFIG = setup, ASK = question, DECIDE = decision; duplicates are merged into the row they duplicate); the top 5 issues in one line each.
+2. **What worked well**: every case with no issue row and no Fail mark, grouped by area; mark "passed by some, others skipped" differently from "passed by every tester". One line of highlights the testers praised.
 3. **Issues by area**: one card per register row: id, case, tester(s), verdict badge, the verbatim quote, a one-line "what we'll do" in plain words, and the screenshot inline if the row has one.
 4. **Decisions needed**: product requests plus any item whose fix waits on the owner (rules, wording, naming), one line each.
 5. **Questions going back to the testers**: the same content as the questions doc, and where the chat-ready file is.
